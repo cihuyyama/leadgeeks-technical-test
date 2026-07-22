@@ -1,32 +1,28 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}"  @class(['dark' => ($appearance ?? 'system') == 'dark'])>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="light" style="color-scheme: light">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="color-scheme" content="light">
 
-        {{-- Inline script to detect system dark mode preference and apply it immediately --}}
+        {{-- Force light theme (no system/dark flip for showcase demo) --}}
         <script>
-            (function() {
-                const appearance = '{{ $appearance ?? "system" }}';
-
-                if (appearance === 'system') {
-                    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-                    if (prefersDark) {
-                        document.documentElement.classList.add('dark');
-                    }
-                }
+            (function () {
+                document.documentElement.classList.remove('dark');
+                document.documentElement.classList.add('light');
+                document.documentElement.style.colorScheme = 'light';
+                try {
+                    localStorage.setItem('appearance', 'light');
+                    document.cookie = 'appearance=light;path=/;max-age=31536000;SameSite=Lax';
+                } catch (e) {}
             })();
         </script>
 
-        {{-- Match LeadGeeks surface before CSS loads --}}
+        {{-- Match LeadGeeks light surface before CSS loads --}}
         <style>
             html {
                 background-color: #f7f6f4;
-            }
-
-            html.dark {
-                background-color: #141210;
+                color-scheme: light;
             }
         </style>
 

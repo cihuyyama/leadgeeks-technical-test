@@ -25,7 +25,7 @@ defineOptions({
         <Heading
             variant="small"
             title="Appearance settings"
-            description="Update the appearance settings for your account"
+            description="This showcase uses a fixed light theme for a consistent demo"
         />
         <AppearanceTabs />
     </div>
