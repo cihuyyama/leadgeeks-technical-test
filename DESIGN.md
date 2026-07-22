@@ -104,9 +104,12 @@ No display/hero type scales. No gradient text. Use `text-wrap: balance` only on 
    - Open Tickets
    - In Progress Tickets
    - High Priority Tickets
-3. **Ticket list:** one **HTML table** (or shadcn Table built on semantic table markup), not a grid of nested ticket cards.
+3. **Ticket list (adaptive):**
+   - **md+ (tablet landscape / desktop):** dense HTML table for scan speed
+   - **&lt; md (phone):** stacked list rows with title, badges, meta, and full-width Edit/Delete (min ~44px touch targets)
+   - Not a marketing card grid; mobile rows stay flat inside the same list surface
 
-Summary cards: flat Card, label + large number, no icons required, no sparkline charts. On small screens, cards wrap to 2×2; table scrolls horizontally if needed.
+Summary cards: flat Card, label + large number, no icons required, no sparkline charts. On small screens, summary cards wrap to 2×2.
 
 ### Ticket table columns
 
@@ -170,7 +173,7 @@ Optional, sparse. Prefer text labels for status and actions. If icons appear (pl
 - Keep primary CTA (New ticket / Save) visually primary with restrained blue
 - Match contrast requirements; darken muted text if it fails AA
 - Empty states: short sentence + button to create first ticket
-- Responsive: cards reflow; table remains usable (horizontal scroll ok)
+- Responsive: summary cards reflow; phone uses stacked ticket list; table from `md` up
 
 ## Don't
 

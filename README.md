@@ -147,8 +147,9 @@ Use this account right after seeding. Credentials are also shown in a **Demo acc
 
 #### UI
 
-- Responsive layout (sidebar + main content)
-- Clear hierarchy: cards → actions → table
+- Responsive layout (sidebar drawer on phone; fixed sidebar on desktop)
+- Clear hierarchy: cards → filters → list
+- Phone: stacked ticket list with large touch actions; tablet/desktop: dense table
 - Color badges for status and priority
 - Empty state when there are no tickets
 - Demo credentials visible on login
