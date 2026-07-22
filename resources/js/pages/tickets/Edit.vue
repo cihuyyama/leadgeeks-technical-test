@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { dashboard } from '@/routes';
-import { edit, update } from '@/routes/tickets';
+import { update } from '@/routes/tickets';
 import type { Ticket } from '@/types/ticket';
 import {
     TICKET_CATEGORIES,

@@ -152,21 +152,27 @@ function buildQuery(
     if (next.search.trim() !== '') {
         query.search = next.search.trim();
     }
+
     if (next.status !== 'all') {
         query.status = next.status;
     }
+
     if (next.priority !== 'all') {
         query.priority = next.priority;
     }
+
     if (next.category !== 'all') {
         query.category = next.category;
     }
+
     if (next.sort !== 'created_at') {
         query.sort = next.sort;
     }
+
     if (next.direction !== 'desc') {
         query.direction = next.direction;
     }
+
     if (typeof next.page === 'number' && next.page > 1) {
         query.page = String(next.page);
     }
@@ -204,6 +210,7 @@ function onSearchInput(): void {
     if (searchTimer) {
         clearTimeout(searchTimer);
     }
+
     searchTimer = setTimeout(() => {
         applyFilters({ search: search.value });
     }, 300);
@@ -262,6 +269,7 @@ function openTicketDetail(ticket: Ticket): void {
 
 function onDetailOpenChange(open: boolean): void {
     detailOpen.value = open;
+
     if (!open) {
         selectedTicket.value = null;
     }
