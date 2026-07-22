@@ -118,7 +118,8 @@ Use this account right after seeding. Credentials are also shown in a **Demo acc
 
 | Action | Description |
 |--------|-------------|
-| **List** | Dashboard table of tickets (filterable; default newest first) |
+| **List** | Dashboard table / mobile list of tickets (filterable; default newest first) |
+| **View detail** | Click a row or mobile card to open a detail modal (full fields + date/time) |
 | **Create** | Form to open a new ticket |
 | **Edit** | Update any field, including status |
 | **Delete** | Remove a ticket with confirmation |
