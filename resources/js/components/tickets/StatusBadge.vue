@@ -12,7 +12,7 @@ const className = computed(() => {
         case 'Open':
             return 'border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-300';
         case 'In Progress':
-            return 'border-[hsl(246_40%_80%)] bg-[hsl(246_45%_96%)] text-[hsl(246_65%_28%)] dark:border-[hsl(246_30%_35%)] dark:bg-[hsl(246_30%_18%)] dark:text-[hsl(246_50%_85%)]';
+            return 'border-sky-200 bg-sky-50 text-sky-800 dark:border-sky-900/50 dark:bg-sky-950/40 dark:text-sky-300';
         case 'Resolved':
             return 'border-green-200 bg-green-50 text-green-800 dark:border-green-900/50 dark:bg-green-950/40 dark:text-green-300';
         case 'Closed':
