@@ -278,7 +278,11 @@ function confirmDelete(ticket: Ticket): void {
                     description="Track, update, and close internal IT support tickets."
                 />
             </div>
-            <Button as-child class="shrink-0 self-start" data-test="new-ticket">
+            <Button
+                as-child
+                class="h-11 w-full touch-manipulation sm:h-9 sm:w-auto sm:self-start"
+                data-test="new-ticket"
+            >
                 <Link :href="create()">
                     <Plus class="size-4" />
                     New ticket
@@ -362,7 +366,7 @@ function confirmDelete(ticket: Ticket): void {
                             type="button"
                             variant="ghost"
                             size="sm"
-                            class="self-start"
+                            class="h-11 self-start touch-manipulation sm:h-9"
                             data-test="clear-filters"
                             @click="clearFilters"
                         >
@@ -534,9 +538,111 @@ function confirmDelete(ticket: Ticket): void {
                     </div>
 
                     <template v-else>
-                        <div class="overflow-x-auto">
+                        <!-- Phone: stacked ticket list (touch-first). md+: dense table. -->
+                        <ul
+                            class="divide-y divide-border md:hidden"
+                            data-test="ticket-card-list"
+                        >
+                            <li
+                                v-for="ticket in rows"
+                                :key="`card-${ticket.id}`"
+                                class="ticket-mobile-card px-4 py-4"
+                                data-test="ticket-row"
+                            >
+                                <div class="space-y-3">
+                                    <div class="space-y-1.5">
+                                        <div
+                                            class="flex flex-wrap items-center gap-1.5"
+                                        >
+                                            <StatusBadge
+                                                :status="ticket.status"
+                                            />
+                                            <PriorityBadge
+                                                :priority="ticket.priority"
+                                            />
+                                            <span
+                                                class="rounded-md border border-border bg-muted/50 px-2 py-0.5 text-[11px] font-medium text-muted-foreground"
+                                            >
+                                                {{ ticket.category }}
+                                            </span>
+                                        </div>
+                                        <h3
+                                            class="text-base leading-snug font-semibold tracking-tight text-balance text-foreground"
+                                        >
+                                            {{ ticket.title }}
+                                        </h3>
+                                        <p
+                                            v-if="ticket.notes"
+                                            class="line-clamp-2 text-sm text-muted-foreground"
+                                        >
+                                            {{ ticket.notes }}
+                                        </p>
+                                    </div>
+
+                                    <dl
+                                        class="grid grid-cols-2 gap-x-3 gap-y-2 text-xs"
+                                    >
+                                        <div class="min-w-0">
+                                            <dt
+                                                class="font-medium text-muted-foreground"
+                                            >
+                                                Assigned
+                                            </dt>
+                                            <dd
+                                                class="truncate font-medium text-foreground"
+                                            >
+                                                {{ ticket.assigned_person }}
+                                            </dd>
+                                        </div>
+                                        <div class="min-w-0">
+                                            <dt
+                                                class="font-medium text-muted-foreground"
+                                            >
+                                                Created
+                                            </dt>
+                                            <dd
+                                                class="tabular-nums text-foreground"
+                                            >
+                                                {{
+                                                    formatDate(
+                                                        ticket.created_at,
+                                                    )
+                                                }}
+                                            </dd>
+                                        </div>
+                                    </dl>
+
+                                    <div class="grid grid-cols-2 gap-2 pt-0.5">
+                                        <Button
+                                            as-child
+                                            variant="outline"
+                                            class="h-11 touch-manipulation"
+                                        >
+                                            <Link
+                                                :href="edit(ticket.id)"
+                                                data-test="edit-ticket"
+                                            >
+                                                Edit
+                                            </Link>
+                                        </Button>
+                                        <Button
+                                            variant="destructive"
+                                            type="button"
+                                            class="h-11 touch-manipulation"
+                                            data-test="delete-ticket"
+                                            @click="confirmDelete(ticket)"
+                                        >
+                                            Delete
+                                        </Button>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+
+                        <div class="hidden overflow-x-auto md:block">
                             <table
                                 class="ticket-table min-w-[760px] text-left text-sm"
+                                data-test="ticket-table"
                             >
                                 <thead>
                                     <tr>
@@ -601,7 +707,7 @@ function confirmDelete(ticket: Ticket): void {
                                                     as-child
                                                     variant="outline"
                                                     size="sm"
-                                                    class="h-8"
+                                                    class="h-9 min-w-16"
                                                 >
                                                     <Link
                                                         :href="edit(ticket.id)"
@@ -614,7 +720,7 @@ function confirmDelete(ticket: Ticket): void {
                                                     variant="destructive"
                                                     size="sm"
                                                     type="button"
-                                                    class="h-8"
+                                                    class="h-9 min-w-16"
                                                     data-test="delete-ticket"
                                                     @click="
                                                         confirmDelete(ticket)
@@ -634,7 +740,7 @@ function confirmDelete(ticket: Ticket): void {
                             data-test="ticket-pagination"
                         >
                             <p
-                                class="text-xs text-muted-foreground tabular-nums"
+                                class="text-sm text-muted-foreground tabular-nums sm:text-xs"
                             >
                                 {{ rangeLabel }}
                                 <span v-if="tickets.last_page > 1">
@@ -645,13 +751,13 @@ function confirmDelete(ticket: Ticket): void {
 
                             <div
                                 v-if="tickets.last_page > 1"
-                                class="flex flex-wrap items-center gap-1"
+                                class="flex flex-wrap items-center gap-1.5"
                             >
                                 <Button
                                     type="button"
                                     variant="outline"
                                     size="sm"
-                                    class="h-8 gap-1 px-2.5"
+                                    class="h-11 gap-1 px-3 touch-manipulation sm:h-9 sm:px-2.5"
                                     :disabled="!tickets.prev_page_url"
                                     data-test="pagination-prev"
                                     @click="goToPage(tickets.prev_page_url)"
@@ -665,7 +771,7 @@ function confirmDelete(ticket: Ticket): void {
                                     :key="`${link.label}-${index}`"
                                     type="button"
                                     size="sm"
-                                    class="h-8 min-w-8 px-2.5 tabular-nums"
+                                    class="h-11 min-w-11 px-2.5 tabular-nums touch-manipulation sm:h-9 sm:min-w-9"
                                     :variant="
                                         link.active ? 'default' : 'outline'
                                     "
@@ -684,7 +790,7 @@ function confirmDelete(ticket: Ticket): void {
                                     type="button"
                                     variant="outline"
                                     size="sm"
-                                    class="h-8 gap-1 px-2.5"
+                                    class="h-11 gap-1 px-3 touch-manipulation sm:h-9 sm:px-2.5"
                                     :disabled="!tickets.next_page_url"
                                     data-test="pagination-next"
                                     @click="goToPage(tickets.next_page_url)"

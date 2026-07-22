@@ -248,6 +248,22 @@
     border-bottom: none;
 }
 
+/* Phone list: flat rows inside the list card (not nested marketing cards) */
+.ticket-mobile-card {
+    background: var(--card);
+    transition: background-color 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.ticket-mobile-card:active {
+    background: color-mix(in srgb, var(--primary) 5%, var(--card));
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ticket-mobile-card {
+        transition: none !important;
+    }
+}
+
 .field-control {
     display: flex;
     width: 100%;
