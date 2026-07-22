@@ -546,12 +546,12 @@ This is a full Laravel app (PHP + SQLite), **not** a static SPA.
 
 ### Recommended: GitHub Actions → GHCR → VPS (pull only)
 
-Build runs on **GitHub** (not on a slow laptop, not on a small VPS). The VPS only pulls the image and restarts the container.
+Build runs on **GitHub** (not on a slow laptop, not on a small VPS). The VPS only **pulls** the image and restarts the container.
 
 ```text
 git push main  →  Actions build  →  ghcr.io/cihuyyama/leadgeeks-technical-test
                                               ↓
-                         VPS: podman pull + run (port 3002)
+                    compose pull + up  (host port 3002)
                                               ↓
               nginx TLS  leadgeeks-ticket.iqbalalhabib.my.id
 ```
@@ -561,18 +561,79 @@ git push main  →  Actions build  →  ghcr.io/cihuyyama/leadgeeks-technical-te
 | Workflow | `.github/workflows/docker.yml` |
 | Image | `ghcr.io/cihuyyama/leadgeeks-technical-test` |
 | Tags | `:latest` (on `main`), `:sha-…`, `:v*` on version tags |
-| Deploy script | `scripts/deploy-from-ghcr.sh` |
-| App port on VPS | **3002** (host network; nginx proxies TLS) |
+| Compose (prod) | `docker-compose.prod.yml` |
+| Env template | `.env.docker.example` → `.env.docker` |
+| Deploy script | `scripts/deploy-from-ghcr.sh` (optional alternative) |
+| Host port | **3002** → container `8080` |
 
-**Daily flow**
+#### Pull & run with compose (recommended)
 
-1. `git push origin main`
-2. Wait for **Docker image (GHCR)** workflow to go green
-3. On VPS: `bash ~/leadgeeks-ticket/scripts/deploy-from-ghcr.sh latest`
+**On VPS (or laptop, for a quick smoke):**
 
-One-time VPS: clone repo for the script, `chmod +x scripts/deploy-from-ghcr.sh`, create `~/.leadgeeks-ticket-env` (`APP_URL`, stable `APP_KEY`, …), `podman login ghcr.io`, nginx + certbot for the subdomain.
+```bash
+# 1) Clone (once) — only needs compose + env files
+git clone https://github.com/cihuyyama/leadgeeks-technical-test.git ~/leadgeeks-ticket
+cd ~/leadgeeks-ticket
 
-### Local container (optional)
+# 2) Env (once)
+cp .env.docker.example .env.docker
+# set APP_KEY (keep stable across deploys) + APP_URL
+# generate: php -r "echo 'base64:'.base64_encode(random_bytes(32)), PHP_EOL;"
+
+# 3) Login GHCR if package is private (once)
+# From laptop: $token = gh auth token
+# ssh ... "echo $token | podman login ghcr.io -u cihuyyama --password-stdin"
+
+# 4) Pull image + start (no build)
+podman compose -f docker-compose.prod.yml pull
+podman compose -f docker-compose.prod.yml up -d
+
+# Smoke
+curl -fsS http://127.0.0.1:3002/up
+```
+
+**Docker CLI** (same files):
+
+```bash
+docker compose -f docker-compose.prod.yml pull
+docker compose -f docker-compose.prod.yml up -d
+```
+
+**Update after new Actions build:**
+
+```bash
+cd ~/leadgeeks-ticket
+git pull   # optional — only if compose/env files changed
+podman compose -f docker-compose.prod.yml pull
+podman compose -f docker-compose.prod.yml up -d
+```
+
+**Pin a SHA tag:**
+
+```bash
+IMAGE_TAG=sha-f6ca2c3 podman compose -f docker-compose.prod.yml up -d
+```
+
+**Local laptop on port 8080:**
+
+```bash
+HOST_PORT=8080 APP_URL=http://localhost:8080 podman compose -f docker-compose.prod.yml up -d
+# open http://localhost:8080
+```
+
+Demo login: `demo@leadgeeks.test` / `password` (seeded when `SEED_ON_START=true` and DB empty).
+
+#### Alternative: shell deploy script
+
+```bash
+bash ~/leadgeeks-ticket/scripts/deploy-from-ghcr.sh latest
+```
+
+Uses `podman run` + host networking on port **3002** and `~/.leadgeeks-ticket-env`. Prefer compose if you want volumes + healthcheck in one file.
+
+One-time VPS: `podman login ghcr.io`, nginx + certbot for the subdomain → `127.0.0.1:3002`.
+
+### Local container (build on machine — optional)
 
 ```bash
 podman compose up -d --build

@@ -9,6 +9,9 @@
 #   bash ~/leadgeeks-ticket/scripts/deploy-from-ghcr.sh sha-abc1234
 #   bash ~/leadgeeks-ticket/scripts/deploy-from-ghcr.sh v0.1.0
 #
+# Prefer compose (same image, volumes, healthcheck):
+#   podman compose -f docker-compose.prod.yml pull && up -d
+#
 # One-time VPS setup:
 #   git clone https://github.com/cihuyyama/leadgeeks-technical-test.git ~/leadgeeks-ticket
 #   # or copy only this script + create ~/.leadgeeks-ticket-env
