@@ -43,6 +43,29 @@ export type TicketFilters = {
     direction: 'asc' | 'desc' | string;
 };
 
+export type PaginationLink = {
+    url: string | null;
+    label: string;
+    active: boolean;
+    page?: number | null;
+};
+
+export type PaginatedTickets = {
+    data: Ticket[];
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+    from: number | null;
+    to: number | null;
+    path: string;
+    first_page_url: string | null;
+    last_page_url: string | null;
+    next_page_url: string | null;
+    prev_page_url: string | null;
+    links: PaginationLink[];
+};
+
 export const TICKET_CATEGORIES: TicketCategory[] = [
     'Hardware',
     'Software',

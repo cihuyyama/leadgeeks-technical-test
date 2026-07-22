@@ -1,6 +1,6 @@
 ﻿<script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
-import { Plus, Search, X } from '@lucide/vue';
+import { ChevronLeft, ChevronRight, Plus, Search, X } from '@lucide/vue';
 import { motion } from 'motion-v';
 import { computed, ref, watch } from 'vue';
 import Heading from '@/components/Heading.vue';
@@ -18,7 +18,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { dashboard } from '@/routes';
 import { create, destroy, edit } from '@/routes/tickets';
-import type { Ticket, TicketFilters, TicketStats } from '@/types/ticket';
+import type {
+    PaginatedTickets,
+    Ticket,
+    TicketFilters,
+    TicketStats,
+} from '@/types/ticket';
 import {
     TICKET_CATEGORIES,
     TICKET_PRIORITIES,
@@ -38,7 +43,7 @@ defineOptions({
 });
 
 const props = defineProps<{
-    tickets: Ticket[];
+    tickets: PaginatedTickets;
     stats: TicketStats;
     filters: TicketFilters;
     resultCount: number;
@@ -64,6 +69,8 @@ watch(
     { deep: true },
 );
 
+const rows = computed(() => props.tickets.data ?? []);
+
 const hasActiveFilters = computed(() => {
     return (
         (search.value ?? '').trim() !== '' ||
@@ -73,6 +80,21 @@ const hasActiveFilters = computed(() => {
         sort.value !== 'created_at' ||
         direction.value !== 'desc'
     );
+});
+
+const pageLinks = computed(() =>
+    (props.tickets.links ?? []).filter(
+        (link) =>
+            !link.label.includes('Previous') && !link.label.includes('Next'),
+    ),
+);
+
+const rangeLabel = computed(() => {
+    if (props.tickets.total === 0 || props.tickets.from === null) {
+        return 'No results';
+    }
+
+    return `Showing ${props.tickets.from}–${props.tickets.to} of ${props.tickets.total}`;
 });
 
 const selectClass = 'field-control';
@@ -102,7 +124,9 @@ const summaryCards = [
 
 let searchTimer: ReturnType<typeof setTimeout> | null = null;
 
-function buildQuery(overrides: Partial<TicketFilters> = {}) {
+function buildQuery(
+    overrides: Partial<TicketFilters> & { page?: number } = {},
+) {
     const next = {
         search: search.value,
         status: status.value,
@@ -133,16 +157,37 @@ function buildQuery(overrides: Partial<TicketFilters> = {}) {
     if (next.direction !== 'desc') {
         query.direction = next.direction;
     }
+    if (typeof next.page === 'number' && next.page > 1) {
+        query.page = String(next.page);
+    }
 
     return query;
 }
 
-function applyFilters(overrides: Partial<TicketFilters> = {}) {
-    router.get(dashboard.url(), buildQuery(overrides), {
+function applyFilters(
+    overrides: Partial<TicketFilters> & { page?: number } = {},
+) {
+    router.get(dashboard.url(), buildQuery({ page: 1, ...overrides }), {
         preserveState: true,
         preserveScroll: true,
         replace: true,
     });
+}
+
+function goToPage(url: string | null): void {
+    if (!url) {
+        return;
+    }
+
+    router.get(
+        url,
+        {},
+        {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+        },
+    );
 }
 
 function onSearchInput(): void {
@@ -186,7 +231,15 @@ function formatDate(value: string): string {
     } catch {
         return value;
     }
+}
 
+function pageLabel(label: string): string {
+    return label
+        .replaceAll('&laquo;', '«')
+        .replaceAll('&raquo;', '»')
+        .replaceAll('&amp;', '&')
+        .replaceAll(/<[^>]*>/g, '')
+        .trim();
 }
 
 function confirmDelete(ticket: Ticket): void {
@@ -446,7 +499,7 @@ function confirmDelete(ticket: Ticket): void {
                 </CardHeader>
                 <CardContent class="p-0">
                     <div
-                        v-if="tickets.length === 0 && stats.total === 0"
+                        v-if="rows.length === 0 && stats.total === 0"
                         class="flex flex-col items-center justify-center gap-3 px-4 py-16 text-center"
                         data-test="tickets-empty"
                     >
@@ -461,7 +514,7 @@ function confirmDelete(ticket: Ticket): void {
                     </div>
 
                     <div
-                        v-else-if="tickets.length === 0"
+                        v-else-if="rows.length === 0"
                         class="flex flex-col items-center justify-center gap-3 px-4 py-16 text-center"
                         data-test="tickets-no-results"
                     >
@@ -480,96 +533,168 @@ function confirmDelete(ticket: Ticket): void {
                         </Button>
                     </div>
 
-                    <div v-else class="overflow-x-auto">
-                        <table
-                            class="ticket-table min-w-[760px] text-left text-sm"
-                        >
-                            <thead>
-                                <tr>
-                                    <th class="px-4 py-3">Title</th>
-                                    <th class="px-4 py-3">Category</th>
-                                    <th class="px-4 py-3">Priority</th>
-                                    <th class="px-4 py-3">Status</th>
-                                    <th class="px-4 py-3">Assigned</th>
-                                    <th class="px-4 py-3">Created</th>
-                                    <th class="px-4 py-3 text-right">
-                                        Actions
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr
-                                    v-for="ticket in tickets"
-                                    :key="ticket.id"
-                                    data-test="ticket-row"
-                                >
-                                    <td class="max-w-[240px] px-4 py-3.5">
-                                        <div
-                                            class="font-medium tracking-tight text-foreground"
-                                        >
-                                            {{ ticket.title }}
-                                        </div>
-                                        <p
-                                            v-if="ticket.notes"
-                                            class="mt-0.5 line-clamp-1 text-xs text-muted-foreground"
-                                        >
-                                            {{ ticket.notes }}
-                                        </p>
-                                    </td>
-                                    <td
-                                        class="px-4 py-3.5 text-muted-foreground"
+                    <template v-else>
+                        <div class="overflow-x-auto">
+                            <table
+                                class="ticket-table min-w-[760px] text-left text-sm"
+                            >
+                                <thead>
+                                    <tr>
+                                        <th class="px-4 py-3">Title</th>
+                                        <th class="px-4 py-3">Category</th>
+                                        <th class="px-4 py-3">Priority</th>
+                                        <th class="px-4 py-3">Status</th>
+                                        <th class="px-4 py-3">Assigned</th>
+                                        <th class="px-4 py-3">Created</th>
+                                        <th class="px-4 py-3 text-right">
+                                            Actions
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr
+                                        v-for="ticket in rows"
+                                        :key="ticket.id"
+                                        data-test="ticket-row"
                                     >
-                                        {{ ticket.category }}
-                                    </td>
-                                    <td class="px-4 py-3.5">
-                                        <PriorityBadge
-                                            :priority="ticket.priority"
-                                        />
-                                    </td>
-                                    <td class="px-4 py-3.5">
-                                        <StatusBadge :status="ticket.status" />
-                                    </td>
-                                    <td class="px-4 py-3.5 text-foreground">
-                                        {{ ticket.assigned_person }}
-                                    </td>
-                                    <td
-                                        class="px-4 py-3.5 whitespace-nowrap text-muted-foreground"
-                                    >
-                                        {{ formatDate(ticket.created_at) }}
-                                    </td>
-                                    <td class="px-4 py-3.5">
-                                        <div
-                                            class="flex items-center justify-end gap-2"
-                                        >
-                                            <Button
-                                                as-child
-                                                variant="outline"
-                                                size="sm"
-                                                class="h-8"
+                                        <td class="max-w-[240px] px-4 py-3.5">
+                                            <div
+                                                class="font-medium tracking-tight text-foreground"
                                             >
-                                                <Link
-                                                    :href="edit(ticket.id)"
-                                                    data-test="edit-ticket"
+                                                {{ ticket.title }}
+                                            </div>
+                                            <p
+                                                v-if="ticket.notes"
+                                                class="mt-0.5 line-clamp-1 text-xs text-muted-foreground"
+                                            >
+                                                {{ ticket.notes }}
+                                            </p>
+                                        </td>
+                                        <td
+                                            class="px-4 py-3.5 text-muted-foreground"
+                                        >
+                                            {{ ticket.category }}
+                                        </td>
+                                        <td class="px-4 py-3.5">
+                                            <PriorityBadge
+                                                :priority="ticket.priority"
+                                            />
+                                        </td>
+                                        <td class="px-4 py-3.5">
+                                            <StatusBadge
+                                                :status="ticket.status"
+                                            />
+                                        </td>
+                                        <td class="px-4 py-3.5 text-foreground">
+                                            {{ ticket.assigned_person }}
+                                        </td>
+                                        <td
+                                            class="px-4 py-3.5 whitespace-nowrap text-muted-foreground"
+                                        >
+                                            {{ formatDate(ticket.created_at) }}
+                                        </td>
+                                        <td class="px-4 py-3.5">
+                                            <div
+                                                class="flex items-center justify-end gap-2"
+                                            >
+                                                <Button
+                                                    as-child
+                                                    variant="outline"
+                                                    size="sm"
+                                                    class="h-8"
                                                 >
-                                                    Edit
-                                                </Link>
-                                            </Button>
-                                            <Button
-                                                variant="destructive"
-                                                size="sm"
-                                                type="button"
-                                                class="h-8"
-                                                data-test="delete-ticket"
-                                                @click="confirmDelete(ticket)"
-                                            >
-                                                Delete
-                                            </Button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                                                    <Link
+                                                        :href="edit(ticket.id)"
+                                                        data-test="edit-ticket"
+                                                    >
+                                                        Edit
+                                                    </Link>
+                                                </Button>
+                                                <Button
+                                                    variant="destructive"
+                                                    size="sm"
+                                                    type="button"
+                                                    class="h-8"
+                                                    data-test="delete-ticket"
+                                                    @click="
+                                                        confirmDelete(ticket)
+                                                    "
+                                                >
+                                                    Delete
+                                                </Button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div
+                            class="flex flex-col gap-3 border-t bg-card/60 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+                            data-test="ticket-pagination"
+                        >
+                            <p
+                                class="text-xs text-muted-foreground tabular-nums"
+                            >
+                                {{ rangeLabel }}
+                                <span v-if="tickets.last_page > 1">
+                                    · Page {{ tickets.current_page }} of
+                                    {{ tickets.last_page }}
+                                </span>
+                            </p>
+
+                            <div
+                                v-if="tickets.last_page > 1"
+                                class="flex flex-wrap items-center gap-1"
+                            >
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    class="h-8 gap-1 px-2.5"
+                                    :disabled="!tickets.prev_page_url"
+                                    data-test="pagination-prev"
+                                    @click="goToPage(tickets.prev_page_url)"
+                                >
+                                    <ChevronLeft class="size-4" />
+                                    Prev
+                                </Button>
+
+                                <Button
+                                    v-for="(link, index) in pageLinks"
+                                    :key="`${link.label}-${index}`"
+                                    type="button"
+                                    size="sm"
+                                    class="h-8 min-w-8 px-2.5 tabular-nums"
+                                    :variant="
+                                        link.active ? 'default' : 'outline'
+                                    "
+                                    :disabled="!link.url"
+                                    :data-test="
+                                        link.active
+                                            ? 'pagination-page-active'
+                                            : 'pagination-page'
+                                    "
+                                    @click="goToPage(link.url)"
+                                >
+                                    {{ pageLabel(link.label) }}
+                                </Button>
+
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    class="h-8 gap-1 px-2.5"
+                                    :disabled="!tickets.next_page_url"
+                                    data-test="pagination-next"
+                                    @click="goToPage(tickets.next_page_url)"
+                                >
+                                    Next
+                                    <ChevronRight class="size-4" />
+                                </Button>
+                            </div>
+                        </div>
+                    </template>
                 </CardContent>
             </Card>
         </motion.div>
