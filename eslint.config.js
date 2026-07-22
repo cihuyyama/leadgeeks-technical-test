@@ -84,6 +84,8 @@ export default defineConfigWithVueTs(
             'resources/js/components/ui/*',
             'resources/js/routes/**',
             'resources/js/wayfinder/**',
+            '.opencode/**',
+            '.omo/**',
         ],
     },
     prettier,
