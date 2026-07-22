@@ -170,8 +170,9 @@ Use this account right after seeding. Credentials are also shown in a **Demo acc
 | **Status color indicators** | Color badges for every status and priority |
 | **Notes / comments** | Optional `notes` field on create/edit; snippet on list; searchable |
 | **Sorting** | Sort by created date, priority, status, title, category, or assignee (asc/desc) |
+| **Pagination** | 10 tickets per page; prev/next + page numbers; keeps filters in the query string |
 
-**Filter behavior:** summary cards always show **global** counts; the table shows the filtered result set. Query string is shareable (`?search=vpn&status=Open&sort=priority`).
+**Filter behavior:** summary cards always show **global** counts; the table shows the filtered + paginated result set. Query string is shareable (`?search=vpn&status=Open&sort=priority&page=2`).
 
 ### Extra polish
 
