@@ -42,7 +42,8 @@ class TicketController extends Controller
             ->priority($filters['priority'])
             ->category($filters['category'])
             ->sortedBy($filters['sort'], $filters['direction'])
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
 
         $stats = [
             'total' => Ticket::query()->count(),
@@ -55,7 +56,7 @@ class TicketController extends Controller
             'tickets' => $tickets,
             'stats' => $stats,
             'filters' => $filters,
-            'resultCount' => $tickets->count(),
+            'resultCount' => $tickets->total(),
         ]);
     }
 

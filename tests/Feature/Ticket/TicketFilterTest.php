@@ -33,8 +33,8 @@ class TicketFilterTest extends TestCase
             ->assertOk()
             ->assertInertia(fn ($page) => $page
                 ->component('tickets/Index')
-                ->has('tickets', 1)
-                ->where('tickets.0.title', 'VPN cannot connect')
+                ->has('tickets.data', 1)
+                ->where('tickets.data.0.title', 'VPN cannot connect')
                 ->where('filters.search', 'VPN')
                 ->where('resultCount', 1)
                 ->where('stats.total', 2));
@@ -52,8 +52,8 @@ class TicketFilterTest extends TestCase
             ->get(route('dashboard', ['status' => 'Open']))
             ->assertOk()
             ->assertInertia(fn ($page) => $page
-                ->has('tickets', 1)
-                ->where('tickets.0.status', 'Open')
+                ->has('tickets.data', 1)
+                ->where('tickets.data.0.status', 'Open')
                 ->where('filters.status', 'Open')
                 ->where('stats.total', 3)
                 ->where('stats.open', 1)
@@ -91,8 +91,8 @@ class TicketFilterTest extends TestCase
             ]))
             ->assertOk()
             ->assertInertia(fn ($page) => $page
-                ->has('tickets', 1)
-                ->where('tickets.0.title', 'Match')
+                ->has('tickets.data', 1)
+                ->where('tickets.data.0.title', 'Match')
                 ->where('filters.priority', 'High')
                 ->where('filters.category', 'Network'));
     }
@@ -112,10 +112,10 @@ class TicketFilterTest extends TestCase
             ]))
             ->assertOk()
             ->assertInertia(fn ($page) => $page
-                ->has('tickets', 3)
-                ->where('tickets.0.priority', 'High')
-                ->where('tickets.1.priority', 'Medium')
-                ->where('tickets.2.priority', 'Low')
+                ->has('tickets.data', 3)
+                ->where('tickets.data.0.priority', 'High')
+                ->where('tickets.data.1.priority', 'Medium')
+                ->where('tickets.data.2.priority', 'Low')
                 ->where('filters.sort', 'priority')
                 ->where('filters.direction', 'asc'));
     }
@@ -137,8 +137,8 @@ class TicketFilterTest extends TestCase
             ->get(route('dashboard'))
             ->assertOk()
             ->assertInertia(fn ($page) => $page
-                ->where('tickets.0.id', $newer->id)
-                ->where('tickets.1.id', $older->id)
+                ->where('tickets.data.0.id', $newer->id)
+                ->where('tickets.data.1.id', $older->id)
                 ->where('filters.sort', 'created_at')
                 ->where('filters.direction', 'desc'));
     }
@@ -162,7 +162,34 @@ class TicketFilterTest extends TestCase
             ->get(route('dashboard', ['search' => 'Finance Q3']))
             ->assertOk()
             ->assertInertia(fn ($page) => $page
-                ->has('tickets', 1)
-                ->where('tickets.0.title', 'Access request'));
+                ->has('tickets.data', 1)
+                ->where('tickets.data.0.title', 'Access request'));
+    }
+
+    public function test_tickets_are_paginated_and_preserve_filters(): void
+    {
+        $user = User::factory()->create();
+
+        Ticket::factory()->count(12)->create([
+            'status' => 'Open',
+            'priority' => 'Medium',
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('dashboard', [
+                'status' => 'Open',
+                'page' => 2,
+            ]))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->component('tickets/Index')
+                ->has('tickets.data', 2)
+                ->where('tickets.current_page', 2)
+                ->where('tickets.per_page', 10)
+                ->where('tickets.total', 12)
+                ->where('tickets.last_page', 2)
+                ->where('resultCount', 12)
+                ->where('filters.status', 'Open')
+                ->where('stats.total', 12));
     }
 }
