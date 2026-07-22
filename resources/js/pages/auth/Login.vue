@@ -49,13 +49,15 @@ onUnmounted(() => {
     </div>
 
     <div
-        class="mx-auto grid w-full max-w-md gap-4 md:max-w-2xl md:grid-cols-[minmax(0,22rem)_minmax(0,15.5rem)] md:items-stretch md:justify-center md:gap-5"
+        class="grid w-full gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,22rem)_minmax(0,1fr)] md:items-stretch md:gap-5"
     >
+        <div class="hidden md:block" aria-hidden="true" />
+
         <Form
             v-bind="store.form()"
             :reset-on-success="['password']"
             v-slot="{ errors, processing }"
-            class="flex flex-col gap-6 rounded-xl border border-border/80 bg-card p-5 shadow-none ring-1 ring-foreground/5"
+            class="mx-auto flex w-full max-w-md flex-col gap-6 rounded-xl border border-border/80 bg-card p-5 shadow-none ring-1 ring-foreground/5 md:mx-0 md:max-w-none"
         >
             <div class="grid gap-6">
                 <div class="grid gap-2">
@@ -109,7 +111,7 @@ onUnmounted(() => {
         </Form>
 
         <motion.aside
-            class="flex h-full flex-col justify-center rounded-xl border border-primary/20 bg-accent p-4 text-sm shadow-sm"
+            class="mx-auto flex w-full max-w-md flex-col justify-center rounded-xl border border-primary/20 bg-accent p-4 text-sm shadow-sm md:mx-0 md:max-w-[15.5rem] md:justify-self-start"
             data-test="demo-credentials"
             :initial="{ opacity: 0, y: 6 }"
             :animate="{ opacity: 1, y: 0 }"

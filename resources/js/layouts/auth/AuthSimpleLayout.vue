@@ -15,7 +15,7 @@ defineProps<{
         class="auth-brand-shell relative flex min-h-svh flex-col items-center justify-center gap-6 overflow-hidden bg-background p-6 md:p-10"
     >
         <motion.div
-            class="relative w-full max-w-md md:max-w-2xl"
+            class="relative w-full max-w-md md:max-w-5xl"
             :initial="{ opacity: 0, y: 12 }"
             :animate="{ opacity: 1, y: 0 }"
             :transition="{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }"
