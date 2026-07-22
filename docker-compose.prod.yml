@@ -1,0 +1,65 @@
+# Production: pull pre-built image from GHCR (no local build).
+#
+# Setup once:
+#   cp .env.docker.example .env.docker
+#   # set APP_KEY (stable) + APP_URL
+#   # GHCR login if package is private:
+#   #   echo TOKEN | podman login ghcr.io -u cihuyyama --password-stdin
+#
+# Pull + run:
+#   podman compose -f docker-compose.prod.yml pull
+#   podman compose -f docker-compose.prod.yml up -d
+#
+# Docker CLI:
+#   docker compose -f docker-compose.prod.yml pull
+#   docker compose -f docker-compose.prod.yml up -d
+#
+# Pin a tag:
+#   IMAGE_TAG=sha-f6ca2c3 podman compose -f docker-compose.prod.yml up -d
+#
+# Local smoke (map host 8080):
+#   HOST_PORT=8080 podman compose -f docker-compose.prod.yml up -d
+#
+# nginx on host → 127.0.0.1:${HOST_PORT:-3002}
+
+services:
+  app:
+    image: ghcr.io/cihuyyama/leadgeeks-technical-test:${IMAGE_TAG:-latest}
+    container_name: leadgeeks-ticket
+    pull_policy: always
+    ports:
+      # Host:container — VPS 3002 (BIBIB=3000, Ello=3001); container listens 8080
+      - "${HOST_PORT:-3002}:8080"
+    # Secrets + APP_URL live here (not empty-overridden by environment below)
+    env_file:
+      - .env.docker
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      DB_CONNECTION: sqlite
+      SESSION_DRIVER: database
+      CACHE_STORE: database
+      QUEUE_CONNECTION: database
+      LOG_CHANNEL: stderr
+      PORT: "8080"
+      TZ: Asia/Jakarta
+    volumes:
+      - leadgeeks-ticket-data:/app/database
+      - leadgeeks-ticket-storage:/app/storage
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "php",
+          "-r",
+          "exit(@file_get_contents('http://127.0.0.1:8080/up') === false ? 1 : 0);",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 45s
+
+volumes:
+  leadgeeks-ticket-data:
+  leadgeeks-ticket-storage:
