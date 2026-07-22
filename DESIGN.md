@@ -7,6 +7,7 @@ accent: leadgeeks-orange
 typography: Archivo
 components: shadcn-vue
 brand: LeadGeeks Inc (leadgeeksinc.com)
+shell: light
 ---
 
 # Design System
@@ -15,15 +16,15 @@ Visual system for a calm, scannable **product dashboard** tinted with **LeadGeek
 
 Source of truth for components: **shadcn-vue** + Tailwind tokens in `resources/css/app.css`. Brand values come from [leadgeeksinc.com](https://leadgeeksinc.com/) (not the unrelated real-estate domain leadgeeks.com).
 
-## Brand anchors (from leadgeeksinc.com)
+## Brand anchors (from leadgeeksinc.com + product shell)
 
 | Token | Hex | Role |
 |-------|-----|------|
-| Navy ink | `#171151` | Foreground / sidebar / headings kinship |
+| Charcoal ink | `#1C1917` | Body text / headings (replaces deep navy shell ink) |
 | Orange primary | `#EF4D05` | CTAs, focus ring, high-priority emphasis |
 | Orange secondary | `#F9943B` | Soft accent wash, secondary highlights |
-| Cool surface | `#F2F5FA` | App background |
-| Cool border | `#D1D6E0` | Borders / inputs |
+| Soft surface | `#F7F6F4` | App background (warm-neutral, not navy wash) |
+| Soft border | `#E4E0DB` | Borders / inputs |
 | Font | **Archivo** | Body + UI labels (site uses Archivo; avoid Days One display in product UI) |
 
 Logo assets: `public/images/leadgeeks-mark.png`, `public/images/leadgeeks-logo.png`.
@@ -33,13 +34,13 @@ Logo assets: `public/images/leadgeeks-mark.png`, `public/images/leadgeeks-logo.p
 | Choice | Decision |
 |--------|----------|
 | Mode | Light by default (office desk, daytime review) |
-| Strategy | Restrained: navy-tinted neutrals + orange accent ≤10% of surface |
+| Strategy | Restrained: warm-neutral surfaces + orange accent ≤10% of surface |
 | Surface | Flat. Soft borders and light elevation only where shadcn already does |
 | Density | Product-dashboard: tight padding, scannable rows, low chrome |
 | Motion | Minimal. Instant or short opacity/transform on open/close only |
-| Sidebar | Deep navy brand panel; white mark + product name |
+| Sidebar | **Light** product shell (white panel + orange active states); not a deep navy brand panel |
 
-Physical scene: LeadGeeks IT staff at a desk under cool office light, scanning tickets between Slack and email. Quiet instrument panel with company orange on primary actions only.
+Physical scene: LeadGeeks IT staff at a desk under soft office light, scanning tickets between Slack and email. Quiet instrument panel with company orange on primary actions only — no heavy dark-blue chrome.
 
 ## Color
 
@@ -47,10 +48,10 @@ Physical scene: LeadGeeks IT staff at a desk under cool office light, scanning t
 
 | Role | Direction | Notes |
 |------|-----------|--------|
-| Background | Cool blue-gray `#F2F5FA` | Not cream / sand / warm paper |
-| Foreground | Navy `#171151` | Body text ≥4.5:1 on background |
-| Muted | Light cool gray + mid navy-gray text | Muted text still ≥4.5:1 where it is primary content |
-| Border | `#D1D6E0` | 1px default; no thick side stripes |
+| Background | Soft warm-neutral `#F7F6F4` | Not cream/sand marketing paper; not cool navy wash |
+| Foreground | Charcoal `#1C1917` | Body text ≥4.5:1 on background |
+| Muted | Light warm gray + mid charcoal-gray text | Muted text still ≥4.5:1 where it is primary content |
+| Border | `#E4E0DB` | 1px default; no thick side stripes |
 | Primary / accent | Orange `#EF4D05` | Buttons, links, focus ring |
 | Destructive | Red | Delete only (high priority uses primary orange for emphasis, not red-only) |
 
@@ -61,7 +62,7 @@ Prefer HSL tokens that map onto existing `--primary`, `--muted`, `--destructive`
 | Status | Color family | Text label always visible |
 |--------|--------------|---------------------------|
 | Open | Amber | Open |
-| In Progress | Blue | In Progress |
+| In Progress | Sky blue | In Progress |
 | Resolved | Green | Resolved |
 | Closed | Slate / gray | Closed |
 
@@ -170,7 +171,7 @@ Optional, sparse. Prefer text labels for status and actions. If icons appear (pl
 - Keep the list as a **table** for comparison and scan speed
 - Use **semantic badges** for status and priority with fixed color mapping
 - Show **demo credentials** on login
-- Keep primary CTA (New ticket / Save) visually primary with restrained blue
+- Keep primary CTA (New ticket / Save) visually primary with brand orange
 - Match contrast requirements; darken muted text if it fails AA
 - Empty states: short sentence + button to create first ticket
 - Responsive: summary cards reflow; phone uses stacked ticket list; table from `md` up

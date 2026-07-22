@@ -30,7 +30,7 @@ Every screen should make ticket state obvious and actions obvious. Status and pr
 
 **Calm · Clear · Professional · LeadGeeks.**
 
-Visual identity aligns with **LeadGeeks Inc** ([leadgeeksinc.com](https://leadgeeksinc.com/)): navy `#171151`, orange `#EF4D05`, cool surface `#F2F5FA`, font Archivo. This is an *internal* product skin of the company brand — not a sales landing page.
+Visual identity aligns with **LeadGeeks Inc** ([leadgeeksinc.com](https://leadgeeksinc.com/)): charcoal ink `#1C1917`, orange `#EF4D05`, soft surface `#F7F6F4`, light sidebar shell, font Archivo. This is an *internal* product skin of the company brand — not a sales landing page.
 
 Voice is plain and direct. Labels name the job (New ticket, Save, Delete). Errors say what failed and what to do next. No marketing slogans, no playful microcopy, no hype.
 

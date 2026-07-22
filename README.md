@@ -178,7 +178,7 @@ Use this account right after seeding. Credentials are also shown in a **Demo acc
 
 ### Extra polish
 
-- LeadGeeks Inc brand theme (navy + orange + Archivo)
+- LeadGeeks Inc brand theme (light shell + orange accent + Archivo)
 - Realistic seed data (20 IT office scenarios → 2 pages at 10/page)
 - Feature tests for CRUD, stats, filters, and auth strip
 - Empty state + “no matches” state when filters return nothing
