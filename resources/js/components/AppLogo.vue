@@ -6,7 +6,7 @@ const name = usePage().props.name;
 
 <template>
     <div
-        class="flex aspect-square size-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-white shadow-sm ring-1 ring-white/20"
+        class="flex aspect-square size-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-white shadow-sm ring-1 ring-border"
     >
         <img
             src="/images/leadgeeks-mark.png"
