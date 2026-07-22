@@ -7,11 +7,19 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+  LeadGeeks Inc product theme
+  Source: leadgeeksinc.com brand tokens
+  - Navy ink:  #171151
+  - Orange:    #EF4D05 (primary) · #F9943B (secondary)
+  - Surface:   #F2F5FA (cool blue-gray)
+  - Font:      Archivo
+*/
+
 @theme inline {
     --font-sans:
-        Instrument Sans, ui-sans-serif, system-ui, sans-serif,
-        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
-        'Noto Color Emoji';
+        'Archivo', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+        'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
     --radius-lg: var(--radius);
     --radius-md: calc(var(--radius) - 2px);
@@ -59,15 +67,16 @@
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-ring: var(--sidebar-ring);
+
+    --color-brand-navy: var(--brand-navy);
+    --color-brand-orange: var(--brand-orange);
+    --color-brand-orange-soft: var(--brand-orange-soft);
 }
 
 /*
   The default border color has changed to `currentColor` in Tailwind CSS v4,
   so we've added these compatibility styles to make sure everything still
   looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
 */
 @layer base {
     *,
@@ -83,83 +92,102 @@
     body,
     html {
         --font-sans:
-            'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
-            'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
-            'Noto Color Emoji';
+            'Archivo', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+            'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
     }
 }
 
 :root {
-    --background: hsl(0 0% 100%);
-    --foreground: hsl(0 0% 3.9%);
+    /* Brand anchors (LeadGeeks Inc) */
+    --brand-navy: #171151;
+    --brand-orange: #ef4d05;
+    --brand-orange-soft: #f9943b;
+    --brand-surface: #f2f5fa;
+    --brand-border: #d1d6e0;
+
+    /* Semantic tokens — cool navy-tinted neutrals + orange primary */
+    --background: hsl(220 33% 97%); /* ~#F2F5FA */
+    --foreground: hsl(246 65% 19%); /* ~#171151 */
     --card: hsl(0 0% 100%);
-    --card-foreground: hsl(0 0% 3.9%);
+    --card-foreground: hsl(246 65% 19%);
     --popover: hsl(0 0% 100%);
-    --popover-foreground: hsl(0 0% 3.9%);
-    --primary: hsl(0 0% 9%);
-    --primary-foreground: hsl(0 0% 98%);
-    --secondary: hsl(0 0% 92.1%);
-    --secondary-foreground: hsl(0 0% 9%);
-    --muted: hsl(0 0% 96.1%);
-    --muted-foreground: hsl(0 0% 45.1%);
-    --accent: hsl(0 0% 96.1%);
-    --accent-foreground: hsl(0 0% 9%);
-    --destructive: hsl(0 84.2% 60.2%);
-    --destructive-foreground: hsl(0 0% 98%);
-    --border: hsl(0 0% 92.8%);
-    --input: hsl(0 0% 89.8%);
-    --ring: hsl(0 0% 3.9%);
-    --chart-1: hsl(12 76% 61%);
-    --chart-2: hsl(173 58% 39%);
-    --chart-3: hsl(197 37% 24%);
-    --chart-4: hsl(43 74% 66%);
-    --chart-5: hsl(27 87% 67%);
+    --popover-foreground: hsl(246 65% 19%);
+
+    /* Primary = brand orange (CTAs, focus) */
+    --primary: hsl(18 96% 48%); /* #EF4D05 */
+    --primary-foreground: hsl(0 0% 100%);
+
+    --secondary: hsl(220 28% 93%);
+    --secondary-foreground: hsl(246 65% 19%);
+    --muted: hsl(220 28% 94%);
+    --muted-foreground: hsl(246 18% 40%);
+    --accent: hsl(24 92% 95%); /* soft orange wash */
+    --accent-foreground: hsl(18 90% 32%);
+    --destructive: hsl(0 78% 48%);
+    --destructive-foreground: hsl(0 0% 100%);
+    --border: hsl(220 20% 86%); /* ~#D1D6E0 */
+    --input: hsl(220 20% 86%);
+    --ring: hsl(18 96% 48%);
+
+    --chart-1: hsl(18 96% 48%);
+    --chart-2: hsl(30 94% 60%);
+    --chart-3: hsl(246 65% 30%);
+    --chart-4: hsl(173 58% 39%);
+    --chart-5: hsl(220 40% 55%);
     --radius: 0.5rem;
-    --sidebar-background: hsl(0 0% 98%);
-    --sidebar-foreground: hsl(240 5.3% 26.1%);
-    --sidebar-primary: hsl(0 0% 10%);
-    --sidebar-primary-foreground: hsl(0 0% 98%);
-    --sidebar-accent: hsl(0 0% 94%);
-    --sidebar-accent-foreground: hsl(0 0% 30%);
-    --sidebar-border: hsl(0 0% 91%);
-    --sidebar-ring: hsl(217.2 91.2% 59.8%);
-    --sidebar: hsl(0 0% 98%);
+
+    /* Sidebar — deep navy brand panel */
+    --sidebar-background: hsl(246 65% 19%);
+    --sidebar-foreground: hsl(220 40% 92%);
+    --sidebar-primary: hsl(18 96% 48%);
+    --sidebar-primary-foreground: hsl(0 0% 100%);
+    --sidebar-accent: hsl(246 45% 28%);
+    --sidebar-accent-foreground: hsl(0 0% 100%);
+    --sidebar-border: hsl(246 40% 28%);
+    --sidebar-ring: hsl(18 96% 48%);
+    --sidebar: hsl(246 65% 19%);
 }
 
 .dark {
-    --background: hsl(0 0% 3.9%);
-    --foreground: hsl(0 0% 98%);
-    --card: hsl(0 0% 3.9%);
-    --card-foreground: hsl(0 0% 98%);
-    --popover: hsl(0 0% 3.9%);
-    --popover-foreground: hsl(0 0% 98%);
-    --primary: hsl(0 0% 98%);
-    --primary-foreground: hsl(0 0% 9%);
-    --secondary: hsl(0 0% 14.9%);
-    --secondary-foreground: hsl(0 0% 98%);
-    --muted: hsl(0 0% 16.08%);
-    --muted-foreground: hsl(0 0% 63.9%);
-    --accent: hsl(0 0% 14.9%);
-    --accent-foreground: hsl(0 0% 98%);
-    --destructive: hsl(0 84% 60%);
-    --destructive-foreground: hsl(0 0% 98%);
-    --border: hsl(0 0% 14.9%);
-    --input: hsl(0 0% 14.9%);
-    --ring: hsl(0 0% 83.1%);
-    --chart-1: hsl(220 70% 50%);
-    --chart-2: hsl(160 60% 45%);
-    --chart-3: hsl(30 80% 55%);
-    --chart-4: hsl(280 65% 60%);
-    --chart-5: hsl(340 75% 55%);
-    --sidebar-background: hsl(0 0% 7%);
-    --sidebar-foreground: hsl(0 0% 95.9%);
-    --sidebar-primary: hsl(360, 100%, 100%);
+    --brand-navy: #c8c4ef;
+    --brand-orange: #ff7a3d;
+    --brand-orange-soft: #f9943b;
+    --brand-surface: #12101f;
+    --brand-border: #2d2a45;
+
+    --background: hsl(246 35% 8%);
+    --foreground: hsl(220 40% 96%);
+    --card: hsl(246 30% 11%);
+    --card-foreground: hsl(220 40% 96%);
+    --popover: hsl(246 30% 11%);
+    --popover-foreground: hsl(220 40% 96%);
+    --primary: hsl(18 96% 55%);
+    --primary-foreground: hsl(0 0% 100%);
+    --secondary: hsl(246 22% 18%);
+    --secondary-foreground: hsl(220 40% 96%);
+    --muted: hsl(246 20% 16%);
+    --muted-foreground: hsl(220 15% 70%);
+    --accent: hsl(18 40% 18%);
+    --accent-foreground: hsl(24 100% 85%);
+    --destructive: hsl(0 72% 50%);
+    --destructive-foreground: hsl(0 0% 100%);
+    --border: hsl(246 18% 22%);
+    --input: hsl(246 18% 22%);
+    --ring: hsl(18 96% 55%);
+    --chart-1: hsl(18 96% 55%);
+    --chart-2: hsl(30 94% 60%);
+    --chart-3: hsl(246 50% 70%);
+    --chart-4: hsl(173 58% 45%);
+    --chart-5: hsl(220 50% 60%);
+    --sidebar-background: hsl(246 40% 9%);
+    --sidebar-foreground: hsl(220 30% 92%);
+    --sidebar-primary: hsl(18 96% 55%);
     --sidebar-primary-foreground: hsl(0 0% 100%);
-    --sidebar-accent: hsl(0 0% 15.9%);
-    --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
-    --sidebar-border: hsl(0 0% 15.9%);
-    --sidebar-ring: hsl(217.2 91.2% 59.8%);
-    --sidebar: hsl(240 5.9% 10%);
+    --sidebar-accent: hsl(246 30% 16%);
+    --sidebar-accent-foreground: hsl(220 40% 96%);
+    --sidebar-border: hsl(246 25% 16%);
+    --sidebar-ring: hsl(18 96% 55%);
+    --sidebar: hsl(246 40% 9%);
 }
 
 @layer base {
@@ -167,6 +195,99 @@
         @apply border-border outline-ring/50;
     }
     body {
-        @apply bg-background text-foreground;
+        @apply bg-background text-foreground antialiased;
+    }
+}
+
+/* Soft LeadGeeks atmosphere on login (restrained, not marketing hero) */
+.auth-brand-shell {
+    background-image:
+        radial-gradient(ellipse at top, rgba(239, 77, 5, 0.08), transparent 55%),
+        radial-gradient(
+            ellipse at bottom right,
+            rgba(23, 17, 81, 0.06),
+            transparent 50%
+        );
+}
+
+.ticket-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+}
+
+.ticket-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: color-mix(in srgb, var(--muted) 70%, white);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+    border-bottom: 1px solid var(--border);
+}
+
+.ticket-table tbody tr {
+    transition:
+        background-color 0.15s cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.ticket-table tbody tr:hover {
+    background: color-mix(in srgb, var(--primary) 4%, var(--card));
+}
+
+.ticket-table tbody td {
+    border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+    vertical-align: middle;
+}
+
+.ticket-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.field-control {
+    display: flex;
+    width: 100%;
+    height: 2.25rem;
+    border-radius: calc(var(--radius) - 2px);
+    border: 1px solid var(--input);
+    background: var(--card);
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+    box-shadow: 0 1px 0 rgba(23, 17, 81, 0.02);
+    outline: none;
+    transition:
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.field-control:focus-visible {
+    border-color: var(--ring);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent);
+}
+
+textarea.field-control {
+    height: auto;
+    min-height: 6rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+#nprogress .bar {
+    z-index: 110 !important;
+    height: 2.5px !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ticket-table tbody tr,
+    .field-control {
+        transition: none !important;
+    }
+
+    .auth-brand-shell {
+        background-image: none;
     }
 }

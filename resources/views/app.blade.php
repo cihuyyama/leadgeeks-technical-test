@@ -19,26 +19,33 @@
             })();
         </script>
 
-        {{-- Inline style to set the HTML background color based on our theme in app.css --}}
+        {{-- Match LeadGeeks surface before CSS loads --}}
         <style>
             html {
-                background-color: oklch(1 0 0);
+                background-color: #f2f5fa;
             }
 
             html.dark {
-                background-color: oklch(0.145 0 0);
+                background-color: #12101f;
             }
         </style>
 
-        <link rel="icon" href="/favicon.ico" sizes="any">
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+        <link rel="icon" href="/images/leadgeeks-mark.png" sizes="any">
+        <link rel="apple-touch-icon" href="/images/leadgeeks-mark.png">
+
+        {{-- LeadGeeks Inc brand font (Archivo) --}}
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap"
+            rel="stylesheet"
+        >
 
         @fonts
 
         @vite(['resources/css/app.css', 'resources/js/app.ts', "resources/js/pages/{$page['component']}.vue"])
         <x-inertia::head>
-            <title>{{ config('app.name', 'Laravel') }}</title>
+            <title>{{ config('app.name', 'LeadGeeks IT') }}</title>
         </x-inertia::head>
     </head>
     <body class="font-sans antialiased">
