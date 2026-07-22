@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Form, Head } from '@inertiajs/vue3';
 import { motion } from 'motion-v';
+import { onMounted, onUnmounted } from 'vue';
 import InputError from '@/components/InputError.vue';
 import PasswordInput from '@/components/PasswordInput.vue';
 import { Button } from '@/components/ui/button';
@@ -21,6 +22,20 @@ defineProps<{
     status?: string;
     canResetPassword: boolean;
 }>();
+
+function reloadIfRestoredFromBfcache(event: PageTransitionEvent): void {
+    if (event.persisted) {
+        window.location.reload();
+    }
+}
+
+onMounted(() => {
+    window.addEventListener('pageshow', reloadIfRestoredFromBfcache);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('pageshow', reloadIfRestoredFromBfcache);
+});
 </script>
 
 <template>
