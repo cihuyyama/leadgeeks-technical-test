@@ -17,6 +17,12 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { dashboard } from '@/routes';
 import { create, destroy, edit } from '@/routes/tickets';
 import type {
@@ -561,6 +567,7 @@ function confirmDelete(ticket: Ticket): void {
 
                     <template v-else>
                         <!-- Phone: stacked ticket list (touch-first). md+: dense table. -->
+                        <TooltipProvider :delay-duration="250">
                         <ul
                             class="divide-y divide-border md:hidden"
                             data-test="ticket-card-list"
@@ -594,17 +601,34 @@ function confirmDelete(ticket: Ticket): void {
                                                 {{ ticket.category }}
                                             </span>
                                         </div>
+                                        <Tooltip v-if="ticket.notes">
+                                            <TooltipTrigger as-child>
+                                                <h3
+                                                    class="text-base leading-snug font-semibold tracking-tight text-balance text-foreground"
+                                                >
+                                                    {{ ticket.title }}
+                                                </h3>
+                                            </TooltipTrigger>
+                                            <TooltipContent
+                                                side="top"
+                                                class="max-w-xs text-left text-xs leading-relaxed"
+                                            >
+                                                <p class="font-semibold">
+                                                    Notes
+                                                </p>
+                                                <p
+                                                    class="mt-1 whitespace-pre-wrap"
+                                                >
+                                                    {{ ticket.notes }}
+                                                </p>
+                                            </TooltipContent>
+                                        </Tooltip>
                                         <h3
+                                            v-else
                                             class="text-base leading-snug font-semibold tracking-tight text-balance text-foreground"
                                         >
                                             {{ ticket.title }}
                                         </h3>
-                                        <p
-                                            v-if="ticket.notes"
-                                            class="line-clamp-2 text-sm text-muted-foreground"
-                                        >
-                                            {{ ticket.notes }}
-                                        </p>
                                     </div>
 
                                     <dl
@@ -701,17 +725,34 @@ function confirmDelete(ticket: Ticket): void {
                                         "
                                     >
                                         <td class="max-w-[240px] px-4 py-3.5">
+                                            <Tooltip v-if="ticket.notes">
+                                                <TooltipTrigger as-child>
+                                                    <div
+                                                        class="font-medium tracking-tight text-foreground"
+                                                    >
+                                                        {{ ticket.title }}
+                                                    </div>
+                                                </TooltipTrigger>
+                                                <TooltipContent
+                                                    side="top"
+                                                    class="max-w-xs text-left text-xs leading-relaxed"
+                                                >
+                                                    <p class="font-semibold">
+                                                        Notes
+                                                    </p>
+                                                    <p
+                                                        class="mt-1 whitespace-pre-wrap"
+                                                    >
+                                                        {{ ticket.notes }}
+                                                    </p>
+                                                </TooltipContent>
+                                            </Tooltip>
                                             <div
+                                                v-else
                                                 class="font-medium tracking-tight text-foreground"
                                             >
                                                 {{ ticket.title }}
                                             </div>
-                                            <p
-                                                v-if="ticket.notes"
-                                                class="mt-0.5 line-clamp-1 text-xs text-muted-foreground"
-                                            >
-                                                {{ ticket.notes }}
-                                            </p>
                                         </td>
                                         <td
                                             class="px-4 py-3.5 text-muted-foreground"
@@ -779,6 +820,7 @@ function confirmDelete(ticket: Ticket): void {
                                 </tbody>
                             </table>
                         </div>
+                        </TooltipProvider>
 
                         <div
                             class="flex flex-col gap-3 border-t bg-card/60 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
