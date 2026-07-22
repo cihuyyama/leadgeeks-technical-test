@@ -15,13 +15,13 @@ defineProps<{
         class="auth-brand-shell relative flex min-h-svh flex-col items-center justify-center gap-6 overflow-hidden bg-background p-6 md:p-10"
     >
         <motion.div
-            class="relative w-full max-w-sm"
+            class="relative w-full max-w-md md:max-w-2xl"
             :initial="{ opacity: 0, y: 12 }"
             :animate="{ opacity: 1, y: 0 }"
             :transition="{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }"
         >
             <div class="flex flex-col gap-8">
-                <div class="flex flex-col items-center gap-4">
+                <div class="mx-auto flex w-full max-w-sm flex-col items-center gap-4">
                     <Link
                         :href="home()"
                         class="flex flex-col items-center gap-3 font-medium"
