@@ -3,28 +3,43 @@ name: LeadGeeks IT Ticket Dashboard
 register: product
 platform: web
 density: product-dashboard
-accent: restrained-blue
-typography: Inter / system-ui
+accent: leadgeeks-orange
+typography: Archivo
 components: shadcn-vue
+brand: LeadGeeks Inc (leadgeeksinc.com)
 ---
 
 # Design System
 
-Visual system for a calm, scannable **product dashboard**. Design serves the ticket workflow. It does not sell a brand story.
+Visual system for a calm, scannable **product dashboard** tinted with **LeadGeeks Inc** brand identity. Design still serves the ticket workflow — it is not a marketing site — but colors, type, and logo should feel like an internal LeadGeeks tool.
 
-Source of truth for components: **shadcn-vue** + Tailwind tokens in `resources/css/app.css`. Extend those tokens. Do not invent a second palette that fights them.
+Source of truth for components: **shadcn-vue** + Tailwind tokens in `resources/css/app.css`. Brand values come from [leadgeeksinc.com](https://leadgeeksinc.com/) (not the unrelated real-estate domain leadgeeks.com).
+
+## Brand anchors (from leadgeeksinc.com)
+
+| Token | Hex | Role |
+|-------|-----|------|
+| Navy ink | `#171151` | Foreground / sidebar / headings kinship |
+| Orange primary | `#EF4D05` | CTAs, focus ring, high-priority emphasis |
+| Orange secondary | `#F9943B` | Soft accent wash, secondary highlights |
+| Cool surface | `#F2F5FA` | App background |
+| Cool border | `#D1D6E0` | Borders / inputs |
+| Font | **Archivo** | Body + UI labels (site uses Archivo; avoid Days One display in product UI) |
+
+Logo assets: `public/images/leadgeeks-mark.png`, `public/images/leadgeeks-logo.png`.
 
 ## Theme
 
 | Choice | Decision |
 |--------|----------|
 | Mode | Light by default (office desk, daytime review) |
-| Strategy | Restrained: tinted neutrals + one blue accent ≤10% of surface |
+| Strategy | Restrained: navy-tinted neutrals + orange accent ≤10% of surface |
 | Surface | Flat. Soft borders and light elevation only where shadcn already does |
 | Density | Product-dashboard: tight padding, scannable rows, low chrome |
 | Motion | Minimal. Instant or short opacity/transform on open/close only |
+| Sidebar | Deep navy brand panel; white mark + product name |
 
-Physical scene: IT staff at a desk under cool office light, scanning tickets between Slack and email. The UI should feel like a quiet instrument panel, not a marketing site.
+Physical scene: LeadGeeks IT staff at a desk under cool office light, scanning tickets between Slack and email. Quiet instrument panel with company orange on primary actions only.
 
 ## Color
 
@@ -32,14 +47,14 @@ Physical scene: IT staff at a desk under cool office light, scanning tickets bet
 
 | Role | Direction | Notes |
 |------|-----------|--------|
-| Background | Near-white, chroma ~0 (or tiny cool tint toward blue) | Avoid cream / sand / warm paper defaults |
-| Foreground | Near-black slate | Body text ≥4.5:1 on background |
-| Muted | Light gray surface + mid gray text | Muted text still ≥4.5:1 where it is primary content |
-| Border | Light gray | 1px default; no thick side stripes |
-| Primary / accent | Restrained blue | Buttons, links, focus ring, “In Progress” kinship |
-| Destructive | Red | Delete and high-priority signal only |
+| Background | Cool blue-gray `#F2F5FA` | Not cream / sand / warm paper |
+| Foreground | Navy `#171151` | Body text ≥4.5:1 on background |
+| Muted | Light cool gray + mid navy-gray text | Muted text still ≥4.5:1 where it is primary content |
+| Border | `#D1D6E0` | 1px default; no thick side stripes |
+| Primary / accent | Orange `#EF4D05` | Buttons, links, focus ring |
+| Destructive | Red | Delete only (high priority uses primary orange for emphasis, not red-only) |
 
-Prefer OKLCH or HSL tokens that map cleanly onto existing `--primary`, `--muted`, `--destructive`, etc. When shifting accent toward blue, update shadcn CSS variables rather than hard-coding one-off classes everywhere.
+Prefer HSL tokens that map onto existing `--primary`, `--muted`, `--destructive`, etc. Update CSS variables in `app.css` rather than hard-coding one-off classes.
 
 ### Status (badges + optional row hints)
 
