@@ -52,12 +52,13 @@ Use this account right after seeding. Credentials are also shown in a **Demo acc
 
 ## Live demo
 
-> Add the public URL after deploy (PHP host / VPS / Railway / Laravel Cloud — not pure static Netlify/Vercel).
+> Public URL after VPS deploy (PHP app — not pure static Netlify/Vercel).
 
 | Item | Value |
 |------|--------|
-| **URL** | _TBD — add after deploy_ |
+| **URL** | _TBD — `https://leadgeeks-ticket.iqbalalhabib.my.id` after first deploy_ |
 | **Login** | `demo@leadgeeks.test` / `password` |
+| **Container** | `ghcr.io/cihuyyama/leadgeeks-technical-test` (built by GitHub Actions) |
 
 ---
 
@@ -236,11 +237,9 @@ npm -v
 ### 1. Clone
 
 ```bash
-git clone https://github.com/cihuyyama/it-ticket-dashboard.git
-cd it-ticket-dashboard
+git clone https://github.com/cihuyyama/leadgeeks-technical-test.git
+cd leadgeeks-technical-test
 ```
-
-> Replace the URL with your public repo if different.
 
 ### 2. Install PHP dependencies
 
@@ -543,24 +542,50 @@ php artisan about
 
 ## Deployment notes
 
-This is a full Laravel app (PHP + SQLite/MySQL), **not** a static SPA.
+This is a full Laravel app (PHP + SQLite), **not** a static SPA.
+
+### Recommended: GitHub Actions → GHCR → VPS (pull only)
+
+Build runs on **GitHub** (not on a slow laptop, not on a small VPS). The VPS only pulls the image and restarts the container.
+
+```text
+git push main  →  Actions build  →  ghcr.io/cihuyyama/leadgeeks-technical-test
+                                              ↓
+                         VPS: podman pull + run (port 3002)
+                                              ↓
+              nginx TLS  leadgeeks-ticket.iqbalalhabib.my.id
+```
+
+| Item | Value |
+|------|--------|
+| Workflow | `.github/workflows/docker.yml` |
+| Image | `ghcr.io/cihuyyama/leadgeeks-technical-test` |
+| Tags | `:latest` (on `main`), `:sha-…`, `:v*` on version tags |
+| Deploy script | `scripts/deploy-from-ghcr.sh` |
+| App port on VPS | **3002** (host network; nginx proxies TLS) |
+
+**Daily flow**
+
+1. `git push origin main`
+2. Wait for **Docker image (GHCR)** workflow to go green
+3. On VPS: `bash ~/leadgeeks-ticket/scripts/deploy-from-ghcr.sh latest`
+
+One-time VPS: clone repo for the script, `chmod +x scripts/deploy-from-ghcr.sh`, create `~/.leadgeeks-ticket-env` (`APP_URL`, stable `APP_KEY`, …), `podman login ghcr.io`, nginx + certbot for the subdomain.
+
+### Local container (optional)
+
+```bash
+podman compose up -d --build
+# http://localhost:8080
+```
+
+### Hosting fit
 
 | Hosting style | Fit |
 |---------------|-----|
-| VPS + nginx/Apache + PHP 8.4 | Best |
+| VPS + nginx + container (this repo) | Best for this demo |
 | Railway / Laravel Cloud / Forge | Good |
-| Shared PHP host with Composer | OK if supported |
-| Pure Netlify / Vercel static | Poor fit without serverless PHP |
-
-Minimal production checklist:
-
-1. `composer install --no-dev --optimize-autoloader`
-2. Set `APP_ENV=production`, `APP_DEBUG=false`, strong `APP_KEY`
-3. Configure DB (SQLite file writable, or MySQL/Postgres)
-4. `php artisan migrate --force --seed` (seed only if demo data is wanted)
-5. `npm ci && npm run build`
-6. Point web root to `public/`
-7. Ensure `storage/` and `bootstrap/cache/` are writable
+| Pure Netlify / Vercel static | Poor fit |
 
 After deploy, put the public URL in the [Live demo](#live-demo) section above.
 
