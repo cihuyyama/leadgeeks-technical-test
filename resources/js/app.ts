@@ -5,7 +5,7 @@ import AuthLayout from '@/layouts/AuthLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
 import { initializeFlashToast } from '@/lib/flashToast';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const appName = import.meta.env.VITE_APP_NAME || 'LeadGeeks IT';
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
@@ -22,12 +22,12 @@ createInertiaApp({
         }
     },
     progress: {
-        color: '#4B5563',
+        color: '#EF4D05',
+        showSpinner: false,
+        delay: 80,
+        includeCSS: true,
     },
 });
 
-// This will set light / dark mode on page load...
 initializeTheme();
-
-// This will listen for flash toast data from the server...
 initializeFlashToast();
