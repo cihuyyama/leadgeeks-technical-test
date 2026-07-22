@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Form, Head } from '@inertiajs/vue3';
+import { motion } from 'motion-v';
 import InputError from '@/components/InputError.vue';
 import PasswordInput from '@/components/PasswordInput.vue';
 import { Button } from '@/components/ui/button';
@@ -25,28 +26,36 @@ defineProps<{
 <template>
     <Head title="Log in" />
 
-    <div
-        class="mb-6 rounded-lg border border-border bg-muted/40 p-4 text-sm"
+    <motion.div
+        class="mb-6 rounded-xl border border-primary/20 bg-accent p-4 text-sm shadow-sm"
         data-test="demo-credentials"
+        :initial="{ opacity: 0, y: 6 }"
+        :animate="{ opacity: 1, y: 0 }"
+        :transition="{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }"
     >
-        <p class="font-medium text-foreground">Demo access</p>
-        <p class="mt-1 text-muted-foreground">
-            Use these credentials for the LeadGeeks technical assessment demo.
-            No registration required.
+        <div class="flex items-center gap-2">
+            <span
+                class="inline-flex size-2 rounded-full bg-primary"
+                aria-hidden="true"
+            />
+            <p class="font-semibold text-accent-foreground">Demo access</p>
+        </div>
+        <p class="mt-1.5 text-muted-foreground">
+            LeadGeeks Inc technical assessment — no registration required.
         </p>
         <dl class="mt-3 grid gap-1.5 font-mono text-xs sm:text-sm">
             <div class="flex flex-wrap gap-x-2">
                 <dt class="text-muted-foreground">Email:</dt>
-                <dd class="font-medium text-foreground">
+                <dd class="font-semibold text-foreground">
                     demo@leadgeeks.test
                 </dd>
             </div>
             <div class="flex flex-wrap gap-x-2">
                 <dt class="text-muted-foreground">Password:</dt>
-                <dd class="font-medium text-foreground">password</dd>
+                <dd class="font-semibold text-foreground">password</dd>
             </div>
         </dl>
-    </div>
+    </motion.div>
 
     <div
         v-if="status"
@@ -59,7 +68,7 @@ defineProps<{
         v-bind="store.form()"
         :reset-on-success="['password']"
         v-slot="{ errors, processing }"
-        class="flex flex-col gap-6"
+        class="flex flex-col gap-6 rounded-xl border border-border/80 bg-card p-5 shadow-none ring-1 ring-brand-navy/5"
     >
         <div class="grid gap-6">
             <div class="grid gap-2">
