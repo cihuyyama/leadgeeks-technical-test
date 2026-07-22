@@ -22,11 +22,11 @@
         {{-- Match LeadGeeks surface before CSS loads --}}
         <style>
             html {
-                background-color: #f2f5fa;
+                background-color: #f7f6f4;
             }
 
             html.dark {
-                background-color: #12101f;
+                background-color: #141210;
             }
         </style>
 
