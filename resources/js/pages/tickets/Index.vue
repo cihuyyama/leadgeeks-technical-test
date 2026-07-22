@@ -53,7 +53,7 @@ const props = defineProps<{
     tickets: PaginatedTickets;
     stats: TicketStats;
     filters: TicketFilters;
-    resultCount: number;
+    resultCount?: number;
 }>();
 
 const search = ref(props.filters.search ?? '');
@@ -101,10 +101,10 @@ const pageLinks = computed(() =>
 
 const rangeLabel = computed(() => {
     if (props.tickets.total === 0 || props.tickets.from === null) {
-        return 'No results';
+        return 'No matching tickets.';
     }
 
-    return `Showing ${props.tickets.from}–${props.tickets.to} of ${props.tickets.total}`;
+    return `Showing ${props.tickets.from}–${props.tickets.to} of ${props.tickets.total} tickets.`;
 });
 
 const selectClass = 'field-control';
@@ -386,15 +386,10 @@ function confirmDelete(ticket: Ticket): void {
                                 >All tickets</CardTitle
                             >
                             <CardDescription>
-                                Search, filter, and sort. Showing
+                                Search, filter, and sort.
                                 <span class="font-medium text-foreground">{{
-                                    resultCount
+                                    rangeLabel
                                 }}</span>
-                                of
-                                <span class="font-medium text-foreground">{{
-                                    stats.total
-                                }}</span>
-                                tickets.
                             </CardDescription>
                         </div>
                         <Button
