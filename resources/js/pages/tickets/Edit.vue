@@ -67,7 +67,7 @@ defineOptions({
         >
             <Form
                 v-bind="update.form(ticket.id)"
-                class="space-y-6 rounded-xl border border-border/80 bg-card p-4 shadow-none ring-1 ring-brand-navy/5 md:p-6"
+                class="space-y-6 rounded-xl border border-border/80 bg-card p-4 shadow-none ring-1 ring-foreground/5 md:p-6"
                 v-slot="{ errors, processing }"
             >
                 <div class="grid gap-2">

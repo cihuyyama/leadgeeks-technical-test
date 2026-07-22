@@ -83,7 +83,7 @@ onUnmounted(() => {
         v-bind="store.form()"
         :reset-on-success="['password']"
         v-slot="{ errors, processing }"
-        class="flex flex-col gap-6 rounded-xl border border-border/80 bg-card p-5 shadow-none ring-1 ring-brand-navy/5"
+        class="flex flex-col gap-6 rounded-xl border border-border/80 bg-card p-5 shadow-none ring-1 ring-foreground/5"
     >
         <div class="grid gap-6">
             <div class="grid gap-2">

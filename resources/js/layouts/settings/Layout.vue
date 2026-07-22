@@ -50,7 +50,7 @@ const { isCurrentOrParentUrl } = useCurrentUrl();
         <div class="flex flex-col lg:flex-row lg:space-x-12">
             <aside class="w-full max-w-xl lg:w-48">
                 <nav
-                    class="flex flex-col space-y-1 space-x-0 rounded-xl border border-border/80 bg-card p-2 ring-1 ring-brand-navy/5"
+                    class="flex flex-col space-y-1 space-x-0 rounded-xl border border-border/80 bg-card p-2 ring-1 ring-foreground/5"
                     aria-label="Settings"
                 >
                     <Button
@@ -78,7 +78,7 @@ const { isCurrentOrParentUrl } = useCurrentUrl();
 
             <div class="flex-1 md:max-w-2xl">
                 <section
-                    class="max-w-xl space-y-12 rounded-xl border border-border/80 bg-card p-4 shadow-none ring-1 ring-brand-navy/5 md:p-6"
+                    class="max-w-xl space-y-12 rounded-xl border border-border/80 bg-card p-4 shadow-none ring-1 ring-foreground/5 md:p-6"
                 >
                     <slot />
                 </section>

@@ -325,7 +325,7 @@ function confirmDelete(ticket: Ticket): void {
                 }"
             >
                 <Card
-                    class="h-full gap-2 border-border/80 bg-card py-4 shadow-none ring-1 ring-brand-navy/5"
+                    class="h-full gap-2 border-border/80 bg-card py-4 shadow-none ring-1 ring-foreground/5"
                     :class="{
                         'ring-primary/15': card.key === 'high_priority',
                     }"
@@ -361,7 +361,7 @@ function confirmDelete(ticket: Ticket): void {
             }"
         >
             <Card
-                class="gap-0 overflow-hidden py-0 shadow-none ring-1 ring-brand-navy/5"
+                class="gap-0 overflow-hidden py-0 shadow-none ring-1 ring-foreground/5"
             >
                 <CardHeader class="space-y-4 border-b bg-card px-4 py-4">
                     <div
