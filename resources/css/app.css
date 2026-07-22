@@ -94,8 +94,9 @@
     body,
     html {
         --font-sans:
-            'Archivo', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
-            'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+            'Archivo', ui-sans-serif, system-ui, sans-serif,
+            'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+            'Noto Color Emoji';
     }
 }
 
@@ -202,7 +203,11 @@
 /* Soft LeadGeeks atmosphere on login (restrained, not marketing hero) */
 .auth-brand-shell {
     background-image:
-        radial-gradient(ellipse at top, rgba(239, 77, 5, 0.09), transparent 55%),
+        radial-gradient(
+            ellipse at top,
+            rgba(239, 77, 5, 0.09),
+            transparent 55%
+        ),
         radial-gradient(
             ellipse at bottom right,
             rgba(28, 25, 23, 0.04),

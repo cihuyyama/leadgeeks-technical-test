@@ -1,11 +1,7 @@
 export type TicketStatus = 'Open' | 'In Progress' | 'Resolved' | 'Closed';
 export type TicketPriority = 'Low' | 'Medium' | 'High';
 export type TicketCategory =
-    | 'Hardware'
-    | 'Software'
-    | 'Network'
-    | 'Access'
-    | 'Other';
+    'Hardware' | 'Software' | 'Network' | 'Access' | 'Other';
 
 export type Ticket = {
     id: number;

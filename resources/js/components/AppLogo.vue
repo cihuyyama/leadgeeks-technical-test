@@ -17,10 +17,14 @@ const name = usePage().props.name;
         />
     </div>
     <div class="ml-2 grid min-w-0 flex-1 text-left text-sm">
-        <span class="truncate leading-tight font-semibold tracking-tight text-sidebar-foreground">
+        <span
+            class="truncate leading-tight font-semibold tracking-tight text-sidebar-foreground"
+        >
             {{ name }}
         </span>
-        <span class="truncate text-[11px] leading-tight text-sidebar-foreground/65">
+        <span
+            class="truncate text-[11px] leading-tight text-sidebar-foreground/65"
+        >
             IT Tickets
         </span>
     </div>

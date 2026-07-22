@@ -41,12 +41,12 @@ onMounted(() => {
                     <span
                         class="absolute inset-0 animate-spin rounded-full border-2 border-transparent border-t-primary border-r-primary/40"
                     />
-                    <span
-                        class="absolute inset-2 rounded-full bg-primary/10"
-                    />
+                    <span class="absolute inset-2 rounded-full bg-primary/10" />
                 </div>
                 <div class="text-center">
-                    <p class="text-sm font-semibold tracking-tight text-foreground">
+                    <p
+                        class="text-sm font-semibold tracking-tight text-foreground"
+                    >
                         {{ visitLabel }}
                     </p>
                     <p class="mt-0.5 text-xs text-muted-foreground">

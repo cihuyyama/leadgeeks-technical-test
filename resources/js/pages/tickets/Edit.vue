@@ -176,7 +176,9 @@ defineOptions({
                     <InputError :message="errors.notes" />
                 </div>
 
-                <div class="flex flex-wrap items-center gap-3 border-t border-border/70 pt-4">
+                <div
+                    class="flex flex-wrap items-center gap-3 border-t border-border/70 pt-4"
+                >
                     <Button
                         type="submit"
                         :disabled="processing"

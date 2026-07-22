@@ -351,7 +351,7 @@ function confirmDelete(ticket: Ticket): void {
                             {{ card.label }}
                         </CardDescription>
                         <CardTitle
-                            class="text-3xl font-semibold tabular-nums tracking-tight"
+                            class="text-3xl font-semibold tracking-tight tabular-nums"
                             :class="
                                 card.key === 'high_priority'
                                     ? 'text-primary'
@@ -402,7 +402,7 @@ function confirmDelete(ticket: Ticket): void {
                             type="button"
                             variant="ghost"
                             size="sm"
-                            class="h-11 self-start touch-manipulation sm:h-9"
+                            class="h-11 touch-manipulation self-start sm:h-9"
                             data-test="clear-filters"
                             @click="clearFilters"
                         >
@@ -576,170 +576,46 @@ function confirmDelete(ticket: Ticket): void {
                     <template v-else>
                         <!-- Phone: stacked ticket list (touch-first). md+: dense table. -->
                         <TooltipProvider :delay-duration="250">
-                        <ul
-                            class="divide-y divide-border md:hidden"
-                            data-test="ticket-card-list"
-                        >
-                            <li
-                                v-for="ticket in rows"
-                                :key="`card-${ticket.id}`"
-                                class="ticket-mobile-card cursor-pointer px-4 py-4"
-                                data-test="ticket-row"
-                                role="button"
-                                tabindex="0"
-                                @click="openTicketDetail(ticket)"
-                                @keydown.enter.prevent="
-                                    openTicketDetail(ticket)
-                                "
+                            <ul
+                                class="divide-y divide-border md:hidden"
+                                data-test="ticket-card-list"
                             >
-                                <div class="space-y-3">
-                                    <div class="space-y-1.5">
-                                        <div
-                                            class="flex flex-wrap items-center gap-1.5"
-                                        >
-                                            <StatusBadge
-                                                :status="ticket.status"
-                                            />
-                                            <PriorityBadge
-                                                :priority="ticket.priority"
-                                            />
-                                            <span
-                                                class="rounded-md border border-border bg-muted/50 px-2 py-0.5 text-[11px] font-medium text-muted-foreground"
+                                <li
+                                    v-for="ticket in rows"
+                                    :key="`card-${ticket.id}`"
+                                    class="ticket-mobile-card cursor-pointer px-4 py-4"
+                                    data-test="ticket-row"
+                                    role="button"
+                                    tabindex="0"
+                                    @click="openTicketDetail(ticket)"
+                                    @keydown.enter.prevent="
+                                        openTicketDetail(ticket)
+                                    "
+                                >
+                                    <div class="space-y-3">
+                                        <div class="space-y-1.5">
+                                            <div
+                                                class="flex flex-wrap items-center gap-1.5"
                                             >
-                                                {{ ticket.category }}
-                                            </span>
-                                        </div>
-                                        <Tooltip v-if="ticket.notes">
-                                            <TooltipTrigger as-child>
-                                                <h3
-                                                    class="text-base leading-snug font-semibold tracking-tight text-balance text-foreground"
+                                                <StatusBadge
+                                                    :status="ticket.status"
+                                                />
+                                                <PriorityBadge
+                                                    :priority="ticket.priority"
+                                                />
+                                                <span
+                                                    class="rounded-md border border-border bg-muted/50 px-2 py-0.5 text-[11px] font-medium text-muted-foreground"
                                                 >
-                                                    {{ ticket.title }}
-                                                </h3>
-                                            </TooltipTrigger>
-                                            <TooltipContent
-                                                side="top"
-                                                class="max-w-xs text-left text-xs leading-relaxed"
-                                            >
-                                                <p class="font-semibold">
-                                                    Notes
-                                                </p>
-                                                <p
-                                                    class="mt-1 whitespace-pre-wrap"
-                                                >
-                                                    {{ ticket.notes }}
-                                                </p>
-                                            </TooltipContent>
-                                        </Tooltip>
-                                        <h3
-                                            v-else
-                                            class="text-base leading-snug font-semibold tracking-tight text-balance text-foreground"
-                                        >
-                                            {{ ticket.title }}
-                                        </h3>
-                                    </div>
-
-                                    <dl
-                                        class="grid grid-cols-2 gap-x-3 gap-y-2 text-xs"
-                                    >
-                                        <div class="min-w-0">
-                                            <dt
-                                                class="font-medium text-muted-foreground"
-                                            >
-                                                Assigned
-                                            </dt>
-                                            <dd
-                                                class="truncate font-medium text-foreground"
-                                            >
-                                                {{ ticket.assigned_person }}
-                                            </dd>
-                                        </div>
-                                        <div class="min-w-0">
-                                            <dt
-                                                class="font-medium text-muted-foreground"
-                                            >
-                                                Created
-                                            </dt>
-                                            <dd
-                                                class="tabular-nums text-foreground"
-                                            >
-                                                {{
-                                                    formatDateTime(
-                                                        ticket.created_at,
-                                                    )
-                                                }}
-                                            </dd>
-                                        </div>
-                                    </dl>
-
-                                    <div
-                                        class="grid grid-cols-2 gap-2 pt-0.5"
-                                        @click.stop
-                                    >
-                                        <Button
-                                            as-child
-                                            variant="outline"
-                                            class="h-11 touch-manipulation"
-                                        >
-                                            <Link
-                                                :href="edit(ticket.id)"
-                                                data-test="edit-ticket"
-                                            >
-                                                Edit
-                                            </Link>
-                                        </Button>
-                                        <Button
-                                            variant="destructive"
-                                            type="button"
-                                            class="h-11 touch-manipulation"
-                                            data-test="delete-ticket"
-                                            @click="confirmDelete(ticket)"
-                                        >
-                                            Delete
-                                        </Button>
-                                    </div>
-                                </div>
-                            </li>
-                        </ul>
-
-                        <div class="hidden overflow-x-auto md:block">
-                            <table
-                                class="ticket-table min-w-[760px] text-left text-sm"
-                                data-test="ticket-table"
-                            >
-                                <thead>
-                                    <tr>
-                                        <th class="px-4 py-3">Title</th>
-                                        <th class="px-4 py-3">Category</th>
-                                        <th class="px-4 py-3">Priority</th>
-                                        <th class="px-4 py-3">Status</th>
-                                        <th class="px-4 py-3">Assigned</th>
-                                        <th class="px-4 py-3">Created</th>
-                                        <th class="px-4 py-3 text-right">
-                                            Actions
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr
-                                        v-for="ticket in rows"
-                                        :key="ticket.id"
-                                        class="cursor-pointer"
-                                        data-test="ticket-row"
-                                        tabindex="0"
-                                        @click="openTicketDetail(ticket)"
-                                        @keydown.enter.prevent="
-                                            openTicketDetail(ticket)
-                                        "
-                                    >
-                                        <td class="max-w-[240px] px-4 py-3.5">
+                                                    {{ ticket.category }}
+                                                </span>
+                                            </div>
                                             <Tooltip v-if="ticket.notes">
                                                 <TooltipTrigger as-child>
-                                                    <div
-                                                        class="font-medium tracking-tight text-foreground"
+                                                    <h3
+                                                        class="text-base leading-snug font-semibold tracking-tight text-balance text-foreground"
                                                     >
                                                         {{ ticket.title }}
-                                                    </div>
+                                                    </h3>
                                                 </TooltipTrigger>
                                                 <TooltipContent
                                                     side="top"
@@ -755,79 +631,213 @@ function confirmDelete(ticket: Ticket): void {
                                                     </p>
                                                 </TooltipContent>
                                             </Tooltip>
-                                            <div
+                                            <h3
                                                 v-else
-                                                class="font-medium tracking-tight text-foreground"
+                                                class="text-base leading-snug font-semibold tracking-tight text-balance text-foreground"
                                             >
                                                 {{ ticket.title }}
+                                            </h3>
+                                        </div>
+
+                                        <dl
+                                            class="grid grid-cols-2 gap-x-3 gap-y-2 text-xs"
+                                        >
+                                            <div class="min-w-0">
+                                                <dt
+                                                    class="font-medium text-muted-foreground"
+                                                >
+                                                    Assigned
+                                                </dt>
+                                                <dd
+                                                    class="truncate font-medium text-foreground"
+                                                >
+                                                    {{ ticket.assigned_person }}
+                                                </dd>
                                             </div>
-                                        </td>
-                                        <td
-                                            class="px-4 py-3.5 text-muted-foreground"
-                                        >
-                                            {{ ticket.category }}
-                                        </td>
-                                        <td class="px-4 py-3.5">
-                                            <PriorityBadge
-                                                :priority="ticket.priority"
-                                            />
-                                        </td>
-                                        <td class="px-4 py-3.5">
-                                            <StatusBadge
-                                                :status="ticket.status"
-                                            />
-                                        </td>
-                                        <td class="px-4 py-3.5 text-foreground">
-                                            {{ ticket.assigned_person }}
-                                        </td>
-                                        <td
-                                            class="px-4 py-3.5 whitespace-nowrap text-muted-foreground tabular-nums"
-                                        >
-                                            {{
-                                                formatDateTime(
-                                                    ticket.created_at,
-                                                )
-                                            }}
-                                        </td>
-                                        <td
-                                            class="px-4 py-3.5"
+                                            <div class="min-w-0">
+                                                <dt
+                                                    class="font-medium text-muted-foreground"
+                                                >
+                                                    Created
+                                                </dt>
+                                                <dd
+                                                    class="text-foreground tabular-nums"
+                                                >
+                                                    {{
+                                                        formatDateTime(
+                                                            ticket.created_at,
+                                                        )
+                                                    }}
+                                                </dd>
+                                            </div>
+                                        </dl>
+
+                                        <div
+                                            class="grid grid-cols-2 gap-2 pt-0.5"
                                             @click.stop
-                                            @keydown.stop
                                         >
-                                            <div
-                                                class="flex items-center justify-end gap-2"
+                                            <Button
+                                                as-child
+                                                variant="outline"
+                                                class="h-11 touch-manipulation"
                                             >
-                                                <Button
-                                                    as-child
-                                                    variant="outline"
-                                                    size="sm"
-                                                    class="h-9 min-w-16"
+                                                <Link
+                                                    :href="edit(ticket.id)"
+                                                    data-test="edit-ticket"
                                                 >
-                                                    <Link
-                                                        :href="edit(ticket.id)"
-                                                        data-test="edit-ticket"
+                                                    Edit
+                                                </Link>
+                                            </Button>
+                                            <Button
+                                                variant="destructive"
+                                                type="button"
+                                                class="h-11 touch-manipulation"
+                                                data-test="delete-ticket"
+                                                @click="confirmDelete(ticket)"
+                                            >
+                                                Delete
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+
+                            <div class="hidden overflow-x-auto md:block">
+                                <table
+                                    class="ticket-table min-w-[760px] text-left text-sm"
+                                    data-test="ticket-table"
+                                >
+                                    <thead>
+                                        <tr>
+                                            <th class="px-4 py-3">Title</th>
+                                            <th class="px-4 py-3">Category</th>
+                                            <th class="px-4 py-3">Priority</th>
+                                            <th class="px-4 py-3">Status</th>
+                                            <th class="px-4 py-3">Assigned</th>
+                                            <th class="px-4 py-3">Created</th>
+                                            <th class="px-4 py-3 text-right">
+                                                Actions
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr
+                                            v-for="ticket in rows"
+                                            :key="ticket.id"
+                                            class="cursor-pointer"
+                                            data-test="ticket-row"
+                                            tabindex="0"
+                                            @click="openTicketDetail(ticket)"
+                                            @keydown.enter.prevent="
+                                                openTicketDetail(ticket)
+                                            "
+                                        >
+                                            <td
+                                                class="max-w-[240px] px-4 py-3.5"
+                                            >
+                                                <Tooltip v-if="ticket.notes">
+                                                    <TooltipTrigger as-child>
+                                                        <div
+                                                            class="font-medium tracking-tight text-foreground"
+                                                        >
+                                                            {{ ticket.title }}
+                                                        </div>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent
+                                                        side="top"
+                                                        class="max-w-xs text-left text-xs leading-relaxed"
                                                     >
-                                                        Edit
-                                                    </Link>
-                                                </Button>
-                                                <Button
-                                                    variant="destructive"
-                                                    size="sm"
-                                                    type="button"
-                                                    class="h-9 min-w-16"
-                                                    data-test="delete-ticket"
-                                                    @click="
-                                                        confirmDelete(ticket)
-                                                    "
+                                                        <p
+                                                            class="font-semibold"
+                                                        >
+                                                            Notes
+                                                        </p>
+                                                        <p
+                                                            class="mt-1 whitespace-pre-wrap"
+                                                        >
+                                                            {{ ticket.notes }}
+                                                        </p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                                <div
+                                                    v-else
+                                                    class="font-medium tracking-tight text-foreground"
                                                 >
-                                                    Delete
-                                                </Button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                                                    {{ ticket.title }}
+                                                </div>
+                                            </td>
+                                            <td
+                                                class="px-4 py-3.5 text-muted-foreground"
+                                            >
+                                                {{ ticket.category }}
+                                            </td>
+                                            <td class="px-4 py-3.5">
+                                                <PriorityBadge
+                                                    :priority="ticket.priority"
+                                                />
+                                            </td>
+                                            <td class="px-4 py-3.5">
+                                                <StatusBadge
+                                                    :status="ticket.status"
+                                                />
+                                            </td>
+                                            <td
+                                                class="px-4 py-3.5 text-foreground"
+                                            >
+                                                {{ ticket.assigned_person }}
+                                            </td>
+                                            <td
+                                                class="px-4 py-3.5 whitespace-nowrap text-muted-foreground tabular-nums"
+                                            >
+                                                {{
+                                                    formatDateTime(
+                                                        ticket.created_at,
+                                                    )
+                                                }}
+                                            </td>
+                                            <td
+                                                class="px-4 py-3.5"
+                                                @click.stop
+                                                @keydown.stop
+                                            >
+                                                <div
+                                                    class="flex items-center justify-end gap-2"
+                                                >
+                                                    <Button
+                                                        as-child
+                                                        variant="outline"
+                                                        size="sm"
+                                                        class="h-9 min-w-16"
+                                                    >
+                                                        <Link
+                                                            :href="
+                                                                edit(ticket.id)
+                                                            "
+                                                            data-test="edit-ticket"
+                                                        >
+                                                            Edit
+                                                        </Link>
+                                                    </Button>
+                                                    <Button
+                                                        variant="destructive"
+                                                        size="sm"
+                                                        type="button"
+                                                        class="h-9 min-w-16"
+                                                        data-test="delete-ticket"
+                                                        @click="
+                                                            confirmDelete(
+                                                                ticket,
+                                                            )
+                                                        "
+                                                    >
+                                                        Delete
+                                                    </Button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </TooltipProvider>
 
                         <div
@@ -852,7 +862,7 @@ function confirmDelete(ticket: Ticket): void {
                                     type="button"
                                     variant="outline"
                                     size="sm"
-                                    class="h-11 gap-1 px-3 touch-manipulation sm:h-9 sm:px-2.5"
+                                    class="h-11 touch-manipulation gap-1 px-3 sm:h-9 sm:px-2.5"
                                     :disabled="!tickets.prev_page_url"
                                     data-test="pagination-prev"
                                     @click="goToPage(tickets.prev_page_url)"
@@ -866,7 +876,7 @@ function confirmDelete(ticket: Ticket): void {
                                     :key="`${link.label}-${index}`"
                                     type="button"
                                     size="sm"
-                                    class="h-11 min-w-11 px-2.5 tabular-nums touch-manipulation sm:h-9 sm:min-w-9"
+                                    class="h-11 min-w-11 touch-manipulation px-2.5 tabular-nums sm:h-9 sm:min-w-9"
                                     :variant="
                                         link.active ? 'default' : 'outline'
                                     "
@@ -885,7 +895,7 @@ function confirmDelete(ticket: Ticket): void {
                                     type="button"
                                     variant="outline"
                                     size="sm"
-                                    class="h-11 gap-1 px-3 touch-manipulation sm:h-9 sm:px-2.5"
+                                    class="h-11 touch-manipulation gap-1 px-3 sm:h-9 sm:px-2.5"
                                     :disabled="!tickets.next_page_url"
                                     data-test="pagination-next"
                                     @click="goToPage(tickets.next_page_url)"

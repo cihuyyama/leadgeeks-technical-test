@@ -21,7 +21,9 @@ defineProps<{
             :transition="{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }"
         >
             <div class="flex flex-col gap-8">
-                <div class="mx-auto flex w-full max-w-sm flex-col items-center gap-4">
+                <div
+                    class="mx-auto flex w-full max-w-sm flex-col items-center gap-4"
+                >
                     <Link
                         :href="home()"
                         class="flex flex-col items-center gap-3 font-medium"

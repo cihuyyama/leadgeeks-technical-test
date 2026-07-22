@@ -28,7 +28,8 @@ const mainNavItems: NavItem[] = [
         href: createTicket(),
         icon: Ticket,
     },
-];</script>
+];
+</script>
 
 <template>
     <Sidebar collapsible="icon" variant="inset">

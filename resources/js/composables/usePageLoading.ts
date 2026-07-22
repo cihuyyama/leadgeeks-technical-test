@@ -13,7 +13,11 @@ function clearStartTimer(): void {
     }
 }
 
-function labelForVisit(event: { detail?: { visit?: { method?: string; url?: { pathname?: string } | string } } }): string {
+function labelForVisit(event: {
+    detail?: {
+        visit?: { method?: string; url?: { pathname?: string } | string };
+    };
+}): string {
     const visit = event.detail?.visit;
     const method = (visit?.method ?? 'get').toLowerCase();
 

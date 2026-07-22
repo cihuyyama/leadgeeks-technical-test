@@ -113,7 +113,7 @@ function onDelete(): void {
                                 Created
                             </dt>
                             <dd
-                                class="text-sm tabular-nums text-foreground"
+                                class="text-sm text-foreground tabular-nums"
                                 data-test="ticket-detail-created"
                             >
                                 {{ formatDateTime(ticket.created_at) }}
@@ -126,7 +126,7 @@ function onDelete(): void {
                                 Updated
                             </dt>
                             <dd
-                                class="text-sm tabular-nums text-foreground"
+                                class="text-sm text-foreground tabular-nums"
                                 data-test="ticket-detail-updated"
                             >
                                 {{ formatDateTime(ticket.updated_at) }}
