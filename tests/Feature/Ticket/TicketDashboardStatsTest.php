@@ -65,10 +65,14 @@ class TicketDashboardStatsTest extends TestCase
                 ->component('tickets/Index')
                 ->has('tickets', 4)
                 ->has('stats')
+                ->has('filters')
+                ->where('resultCount', 4)
                 ->where('stats.total', 4)
                 ->where('stats.open', 1)
                 ->where('stats.in_progress', 1)
-                ->where('stats.high_priority', 2));
+                ->where('stats.high_priority', 2)
+                ->where('filters.sort', 'created_at')
+                ->where('filters.direction', 'desc'));
     }
 
     public function test_dashboard_stats_are_zero_when_no_tickets(): void

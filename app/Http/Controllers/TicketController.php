@@ -6,30 +6,56 @@ use App\Http\Requests\Ticket\StoreTicketRequest;
 use App\Http\Requests\Ticket\UpdateTicketRequest;
 use App\Models\Ticket;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class TicketController extends Controller
 {
     /**
-     * Display the ticket dashboard with list and summary stats.
+     * Display the ticket dashboard with list, filters, and summary stats.
+     *
+     * Stats always reflect the full dataset (not the current filters).
+     * The list is filtered/sorted via query string.
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
+        $filters = [
+            'search' => $request->string('search')->trim()->toString(),
+            'status' => $request->string('status')->toString() ?: 'all',
+            'priority' => $request->string('priority')->toString() ?: 'all',
+            'category' => $request->string('category')->toString() ?: 'all',
+            'sort' => $request->string('sort')->toString() ?: 'created_at',
+            'direction' => strtolower($request->string('direction')->toString() ?: 'desc') === 'asc'
+                ? 'asc'
+                : 'desc',
+        ];
+
+        $allowedSorts = ['created_at', 'title', 'status', 'priority', 'category', 'assigned_person'];
+        if (! in_array($filters['sort'], $allowedSorts, true)) {
+            $filters['sort'] = 'created_at';
+        }
+
         $tickets = Ticket::query()
-            ->latest()
+            ->search($filters['search'])
+            ->status($filters['status'])
+            ->priority($filters['priority'])
+            ->category($filters['category'])
+            ->sortedBy($filters['sort'], $filters['direction'])
             ->get();
 
         $stats = [
-            'total' => $tickets->count(),
-            'open' => $tickets->where('status', 'Open')->count(),
-            'in_progress' => $tickets->where('status', 'In Progress')->count(),
-            'high_priority' => $tickets->where('priority', 'High')->count(),
+            'total' => Ticket::query()->count(),
+            'open' => Ticket::query()->where('status', 'Open')->count(),
+            'in_progress' => Ticket::query()->where('status', 'In Progress')->count(),
+            'high_priority' => Ticket::query()->where('priority', 'High')->count(),
         ];
 
         return Inertia::render('tickets/Index', [
             'tickets' => $tickets,
             'stats' => $stats,
+            'filters' => $filters,
+            'resultCount' => $tickets->count(),
         ]);
     }
 
