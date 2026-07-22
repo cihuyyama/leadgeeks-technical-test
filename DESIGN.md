@@ -124,7 +124,11 @@ Single-column form, labels above fields. Use Input, Select, Textarea, Button fro
 
 ### Login
 
-Centered card, minimal. Email + password + Submit. **Demo credentials block** visible without scrolling on common laptop heights (email `demo@leadgeeks.test`, password `password`). No register or forgot-password links.
+Centered product auth, minimal. Email + password + Submit.
+- **md+:** login form card and **Demo access** card sit **side by side** (form primary, demo secondary), group centered on the page
+- **phone:** form first, demo card stacked below (still visible without hunting)
+- Demo credentials always visible (email `demo@leadgeeks.test`, password `password`)
+- No register or forgot-password links
 
 ## Components
 
