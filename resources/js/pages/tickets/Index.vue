@@ -1,6 +1,8 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
-import { Plus } from '@lucide/vue';
+import { Plus, Search, X } from '@lucide/vue';
+import { motion } from 'motion-v';
+import { computed, ref, watch } from 'vue';
 import Heading from '@/components/Heading.vue';
 import PriorityBadge from '@/components/tickets/PriorityBadge.vue';
 import StatusBadge from '@/components/tickets/StatusBadge.vue';
@@ -12,9 +14,17 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { dashboard } from '@/routes';
 import { create, destroy, edit } from '@/routes/tickets';
-import type { Ticket, TicketStats } from '@/types/ticket';
+import type { Ticket, TicketFilters, TicketStats } from '@/types/ticket';
+import {
+    TICKET_CATEGORIES,
+    TICKET_PRIORITIES,
+    TICKET_SORT_OPTIONS,
+    TICKET_STATUSES,
+} from '@/types/ticket';
 
 defineOptions({
     layout: {
@@ -30,7 +40,42 @@ defineOptions({
 const props = defineProps<{
     tickets: Ticket[];
     stats: TicketStats;
+    filters: TicketFilters;
+    resultCount: number;
 }>();
+
+const search = ref(props.filters.search ?? '');
+const status = ref(props.filters.status ?? 'all');
+const priority = ref(props.filters.priority ?? 'all');
+const category = ref(props.filters.category ?? 'all');
+const sort = ref(props.filters.sort ?? 'created_at');
+const direction = ref(props.filters.direction ?? 'desc');
+
+watch(
+    () => props.filters,
+    (next) => {
+        search.value = next.search ?? '';
+        status.value = next.status ?? 'all';
+        priority.value = next.priority ?? 'all';
+        category.value = next.category ?? 'all';
+        sort.value = next.sort ?? 'created_at';
+        direction.value = next.direction ?? 'desc';
+    },
+    { deep: true },
+);
+
+const hasActiveFilters = computed(() => {
+    return (
+        (search.value ?? '').trim() !== '' ||
+        status.value !== 'all' ||
+        priority.value !== 'all' ||
+        category.value !== 'all' ||
+        sort.value !== 'created_at' ||
+        direction.value !== 'desc'
+    );
+});
+
+const selectClass = 'field-control';
 
 const summaryCards = [
     {
@@ -55,6 +100,82 @@ const summaryCards = [
     },
 ] as const;
 
+let searchTimer: ReturnType<typeof setTimeout> | null = null;
+
+function buildQuery(overrides: Partial<TicketFilters> = {}) {
+    const next = {
+        search: search.value,
+        status: status.value,
+        priority: priority.value,
+        category: category.value,
+        sort: sort.value,
+        direction: direction.value,
+        ...overrides,
+    };
+
+    const query: Record<string, string> = {};
+
+    if (next.search.trim() !== '') {
+        query.search = next.search.trim();
+    }
+    if (next.status !== 'all') {
+        query.status = next.status;
+    }
+    if (next.priority !== 'all') {
+        query.priority = next.priority;
+    }
+    if (next.category !== 'all') {
+        query.category = next.category;
+    }
+    if (next.sort !== 'created_at') {
+        query.sort = next.sort;
+    }
+    if (next.direction !== 'desc') {
+        query.direction = next.direction;
+    }
+
+    return query;
+}
+
+function applyFilters(overrides: Partial<TicketFilters> = {}) {
+    router.get(dashboard.url(), buildQuery(overrides), {
+        preserveState: true,
+        preserveScroll: true,
+        replace: true,
+    });
+}
+
+function onSearchInput(): void {
+    if (searchTimer) {
+        clearTimeout(searchTimer);
+    }
+    searchTimer = setTimeout(() => {
+        applyFilters({ search: search.value });
+    }, 300);
+}
+
+function onFilterChange(): void {
+    applyFilters();
+}
+
+function clearFilters(): void {
+    search.value = '';
+    status.value = 'all';
+    priority.value = 'all';
+    category.value = 'all';
+    sort.value = 'created_at';
+    direction.value = 'desc';
+    router.get(
+        dashboard.url(),
+        {},
+        {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+        },
+    );
+}
+
 function formatDate(value: string): string {
     try {
         return new Intl.DateTimeFormat(undefined, {
@@ -65,12 +186,13 @@ function formatDate(value: string): string {
     } catch {
         return value;
     }
+
 }
 
 function confirmDelete(ticket: Ticket): void {
     if (
         !window.confirm(
-            `Delete ticket “${ticket.title}”? This cannot be undone.`,
+            `Delete ticket "${ticket.title}"? This cannot be undone.`,
         )
     ) {
         return;
@@ -86,146 +208,370 @@ function confirmDelete(ticket: Ticket): void {
     <Head title="IT Ticket Dashboard" />
 
     <div class="flex flex-col gap-6 p-4 md:p-6">
-        <div
+        <motion.div
             class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
+            :initial="{ opacity: 0, y: 6 }"
+            :animate="{ opacity: 1, y: 0 }"
+            :transition="{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }"
         >
-            <Heading
-                title="IT Ticket Dashboard"
-                description="Track, update, and close internal IT support tickets."
-            />
+            <div class="space-y-1">
+                <p
+                    class="text-xs font-semibold tracking-wide text-primary uppercase"
+                >
+                    LeadGeeks Inc
+                </p>
+                <Heading
+                    title="IT Ticket Dashboard"
+                    description="Track, update, and close internal IT support tickets."
+                />
+            </div>
             <Button as-child class="shrink-0 self-start" data-test="new-ticket">
                 <Link :href="create()">
                     <Plus class="size-4" />
                     New ticket
                 </Link>
             </Button>
-        </div>
+        </motion.div>
 
         <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <Card
-                v-for="card in summaryCards"
+            <motion.div
+                v-for="(card, index) in summaryCards"
                 :key="card.key"
-                class="gap-2 py-4 shadow-none"
+                :initial="{ opacity: 0, y: 10 }"
+                :animate="{ opacity: 1, y: 0 }"
+                :transition="{
+                    duration: 0.22,
+                    delay: index * 0.04,
+                    ease: [0.22, 1, 0.36, 1],
+                }"
             >
-                <CardHeader class="px-4 pb-0">
-                    <CardDescription class="text-xs font-medium tracking-wide">
-                        {{ card.label }}
-                    </CardDescription>
-                    <CardTitle class="text-3xl font-semibold tabular-nums">
-                        {{ card.value() }}
-                    </CardTitle>
-                </CardHeader>
-            </Card>
+                <Card
+                    class="h-full gap-2 border-border/80 bg-card py-4 shadow-none ring-1 ring-brand-navy/5"
+                    :class="{
+                        'ring-primary/15': card.key === 'high_priority',
+                    }"
+                >
+                    <CardHeader class="px-4 pb-0">
+                        <CardDescription
+                            class="text-xs font-medium tracking-wide text-muted-foreground"
+                        >
+                            {{ card.label }}
+                        </CardDescription>
+                        <CardTitle
+                            class="text-3xl font-semibold tabular-nums tracking-tight"
+                            :class="
+                                card.key === 'high_priority'
+                                    ? 'text-primary'
+                                    : 'text-foreground'
+                            "
+                        >
+                            {{ card.value() }}
+                        </CardTitle>
+                    </CardHeader>
+                </Card>
+            </motion.div>
         </div>
 
-        <Card class="gap-0 py-0 shadow-none">
-            <CardHeader class="border-b px-4 py-4">
-                <CardTitle class="text-base">All tickets</CardTitle>
-                <CardDescription>
-                    Title, category, priority, status, assignee, and created
-                    date.
-                </CardDescription>
-            </CardHeader>
-            <CardContent class="p-0">
-                <div
-                    v-if="tickets.length === 0"
-                    class="flex flex-col items-center justify-center gap-3 px-4 py-16 text-center"
-                    data-test="tickets-empty"
-                >
-                    <p class="text-sm font-medium">No tickets yet</p>
-                    <p class="max-w-sm text-sm text-muted-foreground">
-                        Create the first ticket to populate the dashboard cards
-                        and list.
-                    </p>
-                    <Button as-child size="sm">
-                        <Link :href="create()">New ticket</Link>
-                    </Button>
-                </div>
-
-                <div v-else class="overflow-x-auto">
-                    <table class="w-full min-w-[720px] text-left text-sm">
-                        <thead class="border-b bg-muted/40 text-muted-foreground">
-                            <tr>
-                                <th class="px-4 py-3 font-medium">Title</th>
-                                <th class="px-4 py-3 font-medium">Category</th>
-                                <th class="px-4 py-3 font-medium">Priority</th>
-                                <th class="px-4 py-3 font-medium">Status</th>
-                                <th class="px-4 py-3 font-medium">Assigned</th>
-                                <th class="px-4 py-3 font-medium">Created</th>
-                                <th class="px-4 py-3 font-medium text-right">
-                                    Actions
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr
-                                v-for="ticket in tickets"
-                                :key="ticket.id"
-                                class="border-b last:border-0 hover:bg-muted/30"
-                                data-test="ticket-row"
+        <motion.div
+            :initial="{ opacity: 0, y: 10 }"
+            :animate="{ opacity: 1, y: 0 }"
+            :transition="{
+                duration: 0.24,
+                delay: 0.1,
+                ease: [0.22, 1, 0.36, 1],
+            }"
+        >
+            <Card
+                class="gap-0 overflow-hidden py-0 shadow-none ring-1 ring-brand-navy/5"
+            >
+                <CardHeader class="space-y-4 border-b bg-card px-4 py-4">
+                    <div
+                        class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between"
+                    >
+                        <div>
+                            <CardTitle class="text-base tracking-tight"
+                                >All tickets</CardTitle
                             >
-                                <td class="max-w-[220px] px-4 py-3">
-                                    <div class="font-medium">
-                                        {{ ticket.title }}
-                                    </div>
-                                    <p
-                                        v-if="ticket.notes"
-                                        class="mt-0.5 line-clamp-1 text-xs text-muted-foreground"
-                                    >
-                                        {{ ticket.notes }}
-                                    </p>
-                                </td>
-                                <td class="px-4 py-3 text-muted-foreground">
-                                    {{ ticket.category }}
-                                </td>
-                                <td class="px-4 py-3">
-                                    <PriorityBadge
-                                        :priority="ticket.priority"
-                                    />
-                                </td>
-                                <td class="px-4 py-3">
-                                    <StatusBadge :status="ticket.status" />
-                                </td>
-                                <td class="px-4 py-3">
-                                    {{ ticket.assigned_person }}
-                                </td>
-                                <td
-                                    class="px-4 py-3 whitespace-nowrap text-muted-foreground"
+                            <CardDescription>
+                                Search, filter, and sort. Showing
+                                <span class="font-medium text-foreground">{{
+                                    resultCount
+                                }}</span>
+                                of
+                                <span class="font-medium text-foreground">{{
+                                    stats.total
+                                }}</span>
+                                tickets.
+                            </CardDescription>
+                        </div>
+                        <Button
+                            v-if="hasActiveFilters"
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            class="self-start"
+                            data-test="clear-filters"
+                            @click="clearFilters"
+                        >
+                            <X class="size-4" />
+                            Clear filters
+                        </Button>
+                    </div>
+
+                    <div
+                        class="grid gap-3 md:grid-cols-2 xl:grid-cols-6"
+                        data-test="ticket-filters"
+                    >
+                        <div class="grid gap-1.5 xl:col-span-2">
+                            <Label for="filter-search" class="text-xs"
+                                >Search</Label
+                            >
+                            <div class="relative">
+                                <Search
+                                    class="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground"
+                                />
+                                <Input
+                                    id="filter-search"
+                                    v-model="search"
+                                    type="search"
+                                    placeholder="Title, assignee, notes..."
+                                    class="pl-8"
+                                    data-test="filter-search"
+                                    @input="onSearchInput"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="grid gap-1.5">
+                            <Label for="filter-status" class="text-xs"
+                                >Status</Label
+                            >
+                            <select
+                                id="filter-status"
+                                v-model="status"
+                                :class="selectClass"
+                                data-test="filter-status"
+                                @change="onFilterChange"
+                            >
+                                <option value="all">All statuses</option>
+                                <option
+                                    v-for="option in TICKET_STATUSES"
+                                    :key="option"
+                                    :value="option"
                                 >
-                                    {{ formatDate(ticket.created_at) }}
-                                </td>
-                                <td class="px-4 py-3">
-                                    <div
-                                        class="flex items-center justify-end gap-2"
+                                    {{ option }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="grid gap-1.5">
+                            <Label for="filter-priority" class="text-xs"
+                                >Priority</Label
+                            >
+                            <select
+                                id="filter-priority"
+                                v-model="priority"
+                                :class="selectClass"
+                                data-test="filter-priority"
+                                @change="onFilterChange"
+                            >
+                                <option value="all">All priorities</option>
+                                <option
+                                    v-for="option in TICKET_PRIORITIES"
+                                    :key="option"
+                                    :value="option"
+                                >
+                                    {{ option }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="grid gap-1.5">
+                            <Label for="filter-category" class="text-xs"
+                                >Category</Label
+                            >
+                            <select
+                                id="filter-category"
+                                v-model="category"
+                                :class="selectClass"
+                                data-test="filter-category"
+                                @change="onFilterChange"
+                            >
+                                <option value="all">All categories</option>
+                                <option
+                                    v-for="option in TICKET_CATEGORIES"
+                                    :key="option"
+                                    :value="option"
+                                >
+                                    {{ option }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="grid gap-1.5">
+                            <Label for="filter-sort" class="text-xs"
+                                >Sort by</Label
+                            >
+                            <div class="flex gap-2">
+                                <select
+                                    id="filter-sort"
+                                    v-model="sort"
+                                    :class="selectClass"
+                                    data-test="filter-sort"
+                                    @change="onFilterChange"
+                                >
+                                    <option
+                                        v-for="option in TICKET_SORT_OPTIONS"
+                                        :key="option.value"
+                                        :value="option.value"
                                     >
-                                        <Button
-                                            as-child
-                                            variant="outline"
-                                            size="sm"
+                                        {{ option.label }}
+                                    </option>
+                                </select>
+                                <select
+                                    id="filter-direction"
+                                    v-model="direction"
+                                    :class="selectClass"
+                                    class="max-w-[5.5rem]"
+                                    data-test="filter-direction"
+                                    @change="onFilterChange"
+                                    aria-label="Sort direction"
+                                >
+                                    <option value="desc">Desc</option>
+                                    <option value="asc">Asc</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </CardHeader>
+                <CardContent class="p-0">
+                    <div
+                        v-if="tickets.length === 0 && stats.total === 0"
+                        class="flex flex-col items-center justify-center gap-3 px-4 py-16 text-center"
+                        data-test="tickets-empty"
+                    >
+                        <p class="text-sm font-medium">No tickets yet</p>
+                        <p class="max-w-sm text-sm text-muted-foreground">
+                            Create the first ticket to populate the dashboard
+                            cards and list.
+                        </p>
+                        <Button as-child size="sm">
+                            <Link :href="create()">New ticket</Link>
+                        </Button>
+                    </div>
+
+                    <div
+                        v-else-if="tickets.length === 0"
+                        class="flex flex-col items-center justify-center gap-3 px-4 py-16 text-center"
+                        data-test="tickets-no-results"
+                    >
+                        <p class="text-sm font-medium">No tickets match</p>
+                        <p class="max-w-sm text-sm text-muted-foreground">
+                            Try a different search term or clear filters to see
+                            all {{ stats.total }} tickets.
+                        </p>
+                        <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            @click="clearFilters"
+                        >
+                            Clear filters
+                        </Button>
+                    </div>
+
+                    <div v-else class="overflow-x-auto">
+                        <table
+                            class="ticket-table min-w-[760px] text-left text-sm"
+                        >
+                            <thead>
+                                <tr>
+                                    <th class="px-4 py-3">Title</th>
+                                    <th class="px-4 py-3">Category</th>
+                                    <th class="px-4 py-3">Priority</th>
+                                    <th class="px-4 py-3">Status</th>
+                                    <th class="px-4 py-3">Assigned</th>
+                                    <th class="px-4 py-3">Created</th>
+                                    <th class="px-4 py-3 text-right">
+                                        Actions
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr
+                                    v-for="ticket in tickets"
+                                    :key="ticket.id"
+                                    data-test="ticket-row"
+                                >
+                                    <td class="max-w-[240px] px-4 py-3.5">
+                                        <div
+                                            class="font-medium tracking-tight text-foreground"
                                         >
-                                            <Link
-                                                :href="edit(ticket.id)"
-                                                data-test="edit-ticket"
+                                            {{ ticket.title }}
+                                        </div>
+                                        <p
+                                            v-if="ticket.notes"
+                                            class="mt-0.5 line-clamp-1 text-xs text-muted-foreground"
+                                        >
+                                            {{ ticket.notes }}
+                                        </p>
+                                    </td>
+                                    <td
+                                        class="px-4 py-3.5 text-muted-foreground"
+                                    >
+                                        {{ ticket.category }}
+                                    </td>
+                                    <td class="px-4 py-3.5">
+                                        <PriorityBadge
+                                            :priority="ticket.priority"
+                                        />
+                                    </td>
+                                    <td class="px-4 py-3.5">
+                                        <StatusBadge :status="ticket.status" />
+                                    </td>
+                                    <td class="px-4 py-3.5 text-foreground">
+                                        {{ ticket.assigned_person }}
+                                    </td>
+                                    <td
+                                        class="px-4 py-3.5 whitespace-nowrap text-muted-foreground"
+                                    >
+                                        {{ formatDate(ticket.created_at) }}
+                                    </td>
+                                    <td class="px-4 py-3.5">
+                                        <div
+                                            class="flex items-center justify-end gap-2"
+                                        >
+                                            <Button
+                                                as-child
+                                                variant="outline"
+                                                size="sm"
+                                                class="h-8"
                                             >
-                                                Edit
-                                            </Link>
-                                        </Button>
-                                        <Button
-                                            variant="destructive"
-                                            size="sm"
-                                            type="button"
-                                            data-test="delete-ticket"
-                                            @click="confirmDelete(ticket)"
-                                        >
-                                            Delete
-                                        </Button>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </CardContent>
-        </Card>
+                                                <Link
+                                                    :href="edit(ticket.id)"
+                                                    data-test="edit-ticket"
+                                                >
+                                                    Edit
+                                                </Link>
+                                            </Button>
+                                            <Button
+                                                variant="destructive"
+                                                size="sm"
+                                                type="button"
+                                                class="h-8"
+                                                data-test="delete-ticket"
+                                                @click="confirmDelete(ticket)"
+                                            >
+                                                Delete
+                                            </Button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </CardContent>
+            </Card>
+        </motion.div>
     </div>
 </template>
