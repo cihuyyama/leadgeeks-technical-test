@@ -6,6 +6,7 @@ import { computed, ref, watch } from 'vue';
 import Heading from '@/components/Heading.vue';
 import PriorityBadge from '@/components/tickets/PriorityBadge.vue';
 import StatusBadge from '@/components/tickets/StatusBadge.vue';
+import TicketDetailDialog from '@/components/tickets/TicketDetailDialog.vue';
 import { Button } from '@/components/ui/button';
 import {
     Card,
@@ -55,6 +56,9 @@ const priority = ref(props.filters.priority ?? 'all');
 const category = ref(props.filters.category ?? 'all');
 const sort = ref(props.filters.sort ?? 'created_at');
 const direction = ref(props.filters.direction ?? 'desc');
+
+const selectedTicket = ref<Ticket | null>(null);
+const detailOpen = ref(false);
 
 watch(
     () => props.filters,
@@ -221,12 +225,15 @@ function clearFilters(): void {
     );
 }
 
-function formatDate(value: string): string {
+function formatDateTime(value: string): string {
     try {
         return new Intl.DateTimeFormat(undefined, {
             year: 'numeric',
             month: 'short',
             day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
         }).format(new Date(value));
     } catch {
         return value;
@@ -242,6 +249,18 @@ function pageLabel(label: string): string {
         .trim();
 }
 
+function openTicketDetail(ticket: Ticket): void {
+    selectedTicket.value = ticket;
+    detailOpen.value = true;
+}
+
+function onDetailOpenChange(open: boolean): void {
+    detailOpen.value = open;
+    if (!open) {
+        selectedTicket.value = null;
+    }
+}
+
 function confirmDelete(ticket: Ticket): void {
     if (
         !window.confirm(
@@ -250,6 +269,9 @@ function confirmDelete(ticket: Ticket): void {
     ) {
         return;
     }
+
+    detailOpen.value = false;
+    selectedTicket.value = null;
 
     router.delete(destroy.url(ticket.id), {
         preserveScroll: true,
@@ -546,8 +568,14 @@ function confirmDelete(ticket: Ticket): void {
                             <li
                                 v-for="ticket in rows"
                                 :key="`card-${ticket.id}`"
-                                class="ticket-mobile-card px-4 py-4"
+                                class="ticket-mobile-card cursor-pointer px-4 py-4"
                                 data-test="ticket-row"
+                                role="button"
+                                tabindex="0"
+                                @click="openTicketDetail(ticket)"
+                                @keydown.enter.prevent="
+                                    openTicketDetail(ticket)
+                                "
                             >
                                 <div class="space-y-3">
                                     <div class="space-y-1.5">
@@ -604,7 +632,7 @@ function confirmDelete(ticket: Ticket): void {
                                                 class="tabular-nums text-foreground"
                                             >
                                                 {{
-                                                    formatDate(
+                                                    formatDateTime(
                                                         ticket.created_at,
                                                     )
                                                 }}
@@ -612,7 +640,10 @@ function confirmDelete(ticket: Ticket): void {
                                         </div>
                                     </dl>
 
-                                    <div class="grid grid-cols-2 gap-2 pt-0.5">
+                                    <div
+                                        class="grid grid-cols-2 gap-2 pt-0.5"
+                                        @click.stop
+                                    >
                                         <Button
                                             as-child
                                             variant="outline"
@@ -661,7 +692,13 @@ function confirmDelete(ticket: Ticket): void {
                                     <tr
                                         v-for="ticket in rows"
                                         :key="ticket.id"
+                                        class="cursor-pointer"
                                         data-test="ticket-row"
+                                        tabindex="0"
+                                        @click="openTicketDetail(ticket)"
+                                        @keydown.enter.prevent="
+                                            openTicketDetail(ticket)
+                                        "
                                     >
                                         <td class="max-w-[240px] px-4 py-3.5">
                                             <div
@@ -695,11 +732,19 @@ function confirmDelete(ticket: Ticket): void {
                                             {{ ticket.assigned_person }}
                                         </td>
                                         <td
-                                            class="px-4 py-3.5 whitespace-nowrap text-muted-foreground"
+                                            class="px-4 py-3.5 whitespace-nowrap text-muted-foreground tabular-nums"
                                         >
-                                            {{ formatDate(ticket.created_at) }}
+                                            {{
+                                                formatDateTime(
+                                                    ticket.created_at,
+                                                )
+                                            }}
                                         </td>
-                                        <td class="px-4 py-3.5">
+                                        <td
+                                            class="px-4 py-3.5"
+                                            @click.stop
+                                            @keydown.stop
+                                        >
                                             <div
                                                 class="flex items-center justify-end gap-2"
                                             >
@@ -804,5 +849,12 @@ function confirmDelete(ticket: Ticket): void {
                 </CardContent>
             </Card>
         </motion.div>
+
+        <TicketDetailDialog
+            :ticket="selectedTicket"
+            :open="detailOpen"
+            @update:open="onDetailOpenChange"
+            @delete="confirmDelete"
+        />
     </div>
 </template>
