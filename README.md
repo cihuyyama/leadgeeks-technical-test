@@ -135,7 +135,7 @@ Use this account right after seeding. Credentials are also shown in a **Demo acc
 | Status | Open · In Progress · Resolved · Closed |
 | Assigned person | Free text (assignee name) |
 | Created date | Stored on create; shown on list |
-| Notes | Optional; snippet on list |
+| Notes | Optional; shown on hover tooltip on list (not inline) |
 
 #### Dashboard summary cards
 
@@ -170,7 +170,7 @@ Use this account right after seeding. Credentials are also shown in a **Demo acc
 |-------|----------------|
 | **Search and filter** | Search box (title, assignee, notes, category) + filters for status, priority, category |
 | **Status color indicators** | Color badges for every status and priority |
-| **Notes / comments** | Optional `notes` field on create/edit; snippet on list; searchable |
+| **Notes / comments** | Optional `notes` field on create/edit; hover tooltip on list title; searchable |
 | **Sorting** | Sort by created date, priority, status, title, category, or assignee (asc/desc) |
 | **Pagination** | 10 tickets per page; prev/next + page numbers; keeps filters in the query string |
 

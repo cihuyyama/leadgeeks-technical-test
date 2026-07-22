@@ -116,7 +116,7 @@ Summary cards: flat Card, label + large number, no icons required, no sparkline 
 
 Title · Category · Priority · Status · Assigned · Created · Actions
 
-Priority and status render as badges. Actions: edit / delete (and status change if inline). Dense row height; hover state subtle.
+Priority and status render as badges. Actions: edit / delete (and status change if inline). Dense row height; hover state subtle. Notes are **not** shown inline on the list — hover the title to open a notes tooltip (full text also in the detail modal).
 
 ### Forms (create / edit)
 
