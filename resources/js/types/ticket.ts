@@ -26,6 +26,23 @@ export type TicketStats = {
     high_priority: number;
 };
 
+export type TicketSortField =
+    | 'created_at'
+    | 'title'
+    | 'status'
+    | 'priority'
+    | 'category'
+    | 'assigned_person';
+
+export type TicketFilters = {
+    search: string;
+    status: string;
+    priority: string;
+    category: string;
+    sort: TicketSortField | string;
+    direction: 'asc' | 'desc' | string;
+};
+
 export const TICKET_CATEGORIES: TicketCategory[] = [
     'Hardware',
     'Software',
@@ -41,4 +58,16 @@ export const TICKET_STATUSES: TicketStatus[] = [
     'In Progress',
     'Resolved',
     'Closed',
+];
+
+export const TICKET_SORT_OPTIONS: {
+    value: TicketSortField;
+    label: string;
+}[] = [
+    { value: 'created_at', label: 'Created date' },
+    { value: 'priority', label: 'Priority' },
+    { value: 'status', label: 'Status' },
+    { value: 'title', label: 'Title' },
+    { value: 'category', label: 'Category' },
+    { value: 'assigned_person', label: 'Assignee' },
 ];
