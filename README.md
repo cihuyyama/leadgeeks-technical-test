@@ -56,7 +56,7 @@ Use this account right after seeding. Credentials are also shown in a **Demo acc
 
 | Item | Value |
 |------|--------|
-| **URL** | _TBD — `https://leadgeeks-ticket.iqbalalhabib.my.id` after first deploy_ |
+| **URL** | https://leadgeeks-ticket.iqbalalhabib.my.id |
 | **Login** | `demo@leadgeeks.test` / `password` |
 | **Container** | `ghcr.io/cihuyyama/leadgeeks-technical-test` (built by GitHub Actions) |
 
