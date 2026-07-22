@@ -55,4 +55,28 @@ class AuthStripTest extends TestCase
 
         $response->assertRedirect(route('dashboard', absolute: false));
     }
+
+    public function test_login_page_sends_no_store_cache_headers(): void
+    {
+        $response = $this->get(route('login'));
+
+        $response->assertOk();
+        $this->assertStringContainsString(
+            'no-store',
+            (string) $response->headers->get('Cache-Control'),
+        );
+    }
+
+    public function test_dashboard_sends_no_store_cache_headers_for_authenticated_users(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->get(route('dashboard'));
+
+        $response->assertOk();
+        $this->assertStringContainsString(
+            'no-store',
+            (string) $response->headers->get('Cache-Control'),
+        );
+    }
 }
