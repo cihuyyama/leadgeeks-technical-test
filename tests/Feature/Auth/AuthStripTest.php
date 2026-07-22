@@ -46,4 +46,13 @@ class AuthStripTest extends TestCase
 
         $response->assertRedirect(route('login'));
     }
+
+    public function test_authenticated_user_cannot_visit_login(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->get(route('login'));
+
+        $response->assertRedirect(route('dashboard', absolute: false));
+    }
 }
