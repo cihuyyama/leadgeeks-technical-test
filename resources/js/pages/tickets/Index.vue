@@ -1,6 +1,14 @@
 ﻿<script setup lang="ts">
 import { Head, router } from '@inertiajs/vue3';
-import { ChevronLeft, ChevronRight, Plus, Search, X } from '@lucide/vue';
+import {
+    ChevronLeft,
+    ChevronRight,
+    Pencil,
+    Plus,
+    Search,
+    Trash2,
+    X,
+} from '@lucide/vue';
 import { motion } from 'motion-v';
 import { computed, ref, watch } from 'vue';
 import Heading from '@/components/Heading.vue';
@@ -806,29 +814,61 @@ function executeDelete(ticket: Ticket): void {
                                                     </option>
                                                 </select>
                                             </div>
-                                            <div class="grid grid-cols-2 gap-2">
-                                                <Button
-                                                    type="button"
-                                                    variant="outline"
-                                                    class="h-11 touch-manipulation"
-                                                    data-test="edit-ticket"
-                                                    @click="
-                                                        openEditForm(ticket)
-                                                    "
-                                                >
-                                                    Edit
-                                                </Button>
-                                                <Button
-                                                    variant="destructive"
-                                                    type="button"
-                                                    class="h-11 touch-manipulation"
-                                                    data-test="delete-ticket"
-                                                    @click="
-                                                        requestDelete(ticket)
-                                                    "
-                                                >
-                                                    Delete
-                                                </Button>
+                                            <div
+                                                class="flex items-center justify-end gap-2"
+                                            >
+                                                <Tooltip>
+                                                    <TooltipTrigger as-child>
+                                                        <Button
+                                                            type="button"
+                                                            variant="outline"
+                                                            size="icon"
+                                                            class="size-11 touch-manipulation"
+                                                            data-test="edit-ticket"
+                                                            aria-label="Edit ticket"
+                                                            @click="
+                                                                openEditForm(
+                                                                    ticket,
+                                                                )
+                                                            "
+                                                        >
+                                                            <Pencil
+                                                                class="size-4"
+                                                            />
+                                                        </Button>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent
+                                                        side="top"
+                                                    >
+                                                        Edit
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                                <Tooltip>
+                                                    <TooltipTrigger as-child>
+                                                        <Button
+                                                            type="button"
+                                                            variant="destructive"
+                                                            size="icon"
+                                                            class="size-11 touch-manipulation"
+                                                            data-test="delete-ticket"
+                                                            aria-label="Delete ticket"
+                                                            @click="
+                                                                requestDelete(
+                                                                    ticket,
+                                                                )
+                                                            "
+                                                        >
+                                                            <Trash2
+                                                                class="size-4"
+                                                            />
+                                                        </Button>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent
+                                                        side="top"
+                                                    >
+                                                        Delete
+                                                    </TooltipContent>
+                                                </Tooltip>
                                             </div>
                                         </div>
                                     </div>
@@ -966,34 +1006,64 @@ function executeDelete(ticket: Ticket): void {
                                                 @keydown.stop
                                             >
                                                 <div
-                                                    class="flex items-center justify-end gap-2"
+                                                    class="flex items-center justify-end gap-1.5"
                                                 >
-                                                    <Button
-                                                        type="button"
-                                                        variant="outline"
-                                                        size="sm"
-                                                        class="h-9 min-w-16"
-                                                        data-test="edit-ticket"
-                                                        @click="
-                                                            openEditForm(ticket)
-                                                        "
-                                                    >
-                                                        Edit
-                                                    </Button>
-                                                    <Button
-                                                        variant="destructive"
-                                                        size="sm"
-                                                        type="button"
-                                                        class="h-9 min-w-16"
-                                                        data-test="delete-ticket"
-                                                        @click="
-                                                            requestDelete(
-                                                                ticket,
-                                                            )
-                                                        "
-                                                    >
-                                                        Delete
-                                                    </Button>
+                                                    <Tooltip>
+                                                        <TooltipTrigger
+                                                            as-child
+                                                        >
+                                                            <Button
+                                                                type="button"
+                                                                variant="outline"
+                                                                size="icon"
+                                                                class="size-9"
+                                                                data-test="edit-ticket"
+                                                                aria-label="Edit ticket"
+                                                                @click="
+                                                                    openEditForm(
+                                                                        ticket,
+                                                                    )
+                                                                "
+                                                            >
+                                                                <Pencil
+                                                                    class="size-4"
+                                                                />
+                                                            </Button>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent
+                                                            side="top"
+                                                        >
+                                                            Edit
+                                                        </TooltipContent>
+                                                    </Tooltip>
+                                                    <Tooltip>
+                                                        <TooltipTrigger
+                                                            as-child
+                                                        >
+                                                            <Button
+                                                                type="button"
+                                                                variant="destructive"
+                                                                size="icon"
+                                                                class="size-9"
+                                                                data-test="delete-ticket"
+                                                                aria-label="Delete ticket"
+                                                                @click="
+                                                                    requestDelete(
+                                                                        ticket,
+                                                                    )
+                                                                "
+                                                            >
+                                                                <Trash2
+                                                                    class="size-4"
+                                                                />
+                                                            </Button>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent
+                                                            side="top"
+                                                        >
+                                                            Delete
+                                                        </TooltipContent>
+                                                    </Tooltip>
                                                 </div>
                                             </td>
                                         </tr>
