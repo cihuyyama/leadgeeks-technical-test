@@ -23,6 +23,7 @@ Built as the **LeadGeeks IT Staff** technical assessment (**Option 1**).
 - [Features implemented](#features-implemented)
 - [Screenshots](#screenshots)
 - [Setup instructions](#setup-instructions)
+- [Run with Docker](#run-with-docker)
 - [Environment variables](#environment-variables)
 - [Default data after seed](#default-data-after-seed)
 - [Application structure](#application-structure)
@@ -315,6 +316,147 @@ Then open **http://localhost:8000** and log in with the demo credentials.
 ```bash
 php artisan serve
 ```
+
+Prefer not to install PHP/Node locally? Use [Run with Docker](#run-with-docker) below.
+
+---
+
+## Run with Docker
+
+Run the full app in a container (PHP + built assets + SQLite). Works with **Docker** or **Podman**.
+
+| Path | When to use | Build on your machine? |
+|------|-------------|------------------------|
+| **A. Local build** (`docker-compose.yml`) | Dev / offline / first try | Yes (`--build`) |
+| **B. Pull GHCR image** (`docker-compose.prod.yml`) | Fastest; same image as live demo | No (pull only) |
+
+**Requirements:** Docker Desktop / Docker Engine, or Podman. Compose v2 (`docker compose` / `podman compose`).
+
+Demo login after start: `demo@leadgeeks.test` / `password`  
+Health check: `GET /up`
+
+### A. Local build (recommended for reviewers who clone the repo)
+
+Builds the image from this repository’s `Dockerfile`.
+
+```bash
+git clone https://github.com/cihuyyama/leadgeeks-technical-test.git
+cd leadgeeks-technical-test
+
+# Docker
+docker compose up -d --build
+
+# Podman
+podman compose up -d --build
+```
+
+Open **http://localhost:8080**
+
+Useful commands:
+
+```bash
+# Logs
+docker compose logs -f app
+# or: podman compose logs -f app
+
+# Stop
+docker compose down
+
+# Reset data volumes (fresh seed on next start)
+docker compose down -v
+docker compose up -d --build
+```
+
+| Item | Value |
+|------|--------|
+| Compose file | `docker-compose.yml` |
+| Image | `localhost/leadgeeks-ticket:local` (built) |
+| Host port | **8080** → container `8080` |
+| Data | Docker volumes `ticket-data`, `ticket-storage` |
+| Seed | `SEED_ON_START=true` when DB is empty |
+
+### B. Pull pre-built image from GHCR (no local build)
+
+Uses the same public image as production: `ghcr.io/cihuyyama/leadgeeks-technical-test`.
+
+```bash
+git clone https://github.com/cihuyyama/leadgeeks-technical-test.git
+cd leadgeeks-technical-test
+
+cp .env.docker.example .env.docker
+```
+
+Edit `.env.docker` (required):
+
+```env
+APP_URL=http://localhost:8080
+APP_KEY=base64:...   # generate once; keep stable
+SEED_ON_START=true
+```
+
+Generate a key (any machine with PHP, or use an online base64 of 32 random bytes):
+
+```bash
+php -r "echo 'base64:'.base64_encode(random_bytes(32)), PHP_EOL;"
+```
+
+Run on **host port 8080** (prod default is 3002):
+
+```bash
+# Docker
+HOST_PORT=8080 docker compose -f docker-compose.prod.yml pull
+HOST_PORT=8080 docker compose -f docker-compose.prod.yml up -d
+
+# Podman
+HOST_PORT=8080 podman compose -f docker-compose.prod.yml pull
+HOST_PORT=8080 podman compose -f docker-compose.prod.yml up -d
+```
+
+Open **http://localhost:8080**
+
+Smoke:
+
+```bash
+curl -fsS http://127.0.0.1:8080/up
+```
+
+| Item | Value |
+|------|--------|
+| Compose file | `docker-compose.prod.yml` |
+| Image | `ghcr.io/cihuyyama/leadgeeks-technical-test:latest` |
+| Env file | `.env.docker` (from `.env.docker.example`; gitignored) |
+| Host port | `${HOST_PORT:-3002}` → container `8080` |
+| Pin a build | `IMAGE_TAG=sha-… docker compose -f docker-compose.prod.yml up -d` |
+
+> If the GHCR package is private, log in once:  
+> `echo $TOKEN | docker login ghcr.io -u YOUR_GITHUB_USER --password-stdin`  
+> Public package: no login required.
+
+### Windows (PowerShell) notes
+
+```powershell
+# Local build
+docker compose up -d --build
+
+# Pull GHCR on port 8080
+Copy-Item .env.docker.example .env.docker
+# edit APP_KEY + APP_URL in .env.docker
+$env:HOST_PORT = "8080"
+docker compose -f docker-compose.prod.yml pull
+docker compose -f docker-compose.prod.yml up -d
+```
+
+### Troubleshooting (Docker)
+
+| Problem | Fix |
+|---------|-----|
+| Port already in use | `HOST_PORT=8081` (prod compose) or change `8080:8080` in `docker-compose.yml` |
+| Blank / old UI after pull | `docker compose -f docker-compose.prod.yml pull` then `up -d` again |
+| Empty tickets / re-seed | `docker compose down -v` then `up -d` (wipes SQLite volume) |
+| `APP_KEY` missing (prod compose) | Set a non-empty `APP_KEY` in `.env.docker` |
+| Healthcheck unhealthy | Wait ~45s start period; check `docker compose logs app` |
+
+Production VPS deploy (GHCR + nginx TLS) is covered under [Deployment notes](#deployment-notes).
 
 ---
 
@@ -633,10 +775,13 @@ Uses `podman run` + host networking on port **3002** and `~/.leadgeeks-ticket-en
 
 One-time VPS: `podman login ghcr.io`, nginx + certbot for the subdomain → `127.0.0.1:3002`.
 
-### Local container (build on machine — optional)
+### Local container
+
+See **[Run with Docker](#run-with-docker)** for full local build and GHCR pull instructions.
 
 ```bash
-podman compose up -d --build
+# Quick local build
+docker compose up -d --build
 # http://localhost:8080
 ```
 
