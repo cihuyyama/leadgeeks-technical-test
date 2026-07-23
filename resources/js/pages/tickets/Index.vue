@@ -837,9 +837,7 @@ function executeDelete(ticket: Ticket): void {
                                                             />
                                                         </Button>
                                                     </TooltipTrigger>
-                                                    <TooltipContent
-                                                        side="top"
-                                                    >
+                                                    <TooltipContent side="top">
                                                         Edit
                                                     </TooltipContent>
                                                 </Tooltip>
@@ -863,9 +861,7 @@ function executeDelete(ticket: Ticket): void {
                                                             />
                                                         </Button>
                                                     </TooltipTrigger>
-                                                    <TooltipContent
-                                                        side="top"
-                                                    >
+                                                    <TooltipContent side="top">
                                                         Delete
                                                     </TooltipContent>
                                                 </Tooltip>
