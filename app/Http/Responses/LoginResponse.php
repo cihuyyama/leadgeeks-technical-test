@@ -2,8 +2,10 @@
 
 namespace App\Http\Responses;
 
+use Illuminate\Http\Request;
 use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
 use Laravel\Fortify\Fortify;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Always land on the ticket dashboard after login.
@@ -15,8 +17,8 @@ use Laravel\Fortify\Fortify;
 class LoginResponse implements LoginResponseContract
 {
     /**
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @param  Request  $request
+     * @return Response
      */
     public function toResponse($request)
     {
