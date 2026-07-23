@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import PriorityBadge from '@/components/tickets/PriorityBadge.vue';
 import StatusBadge from '@/components/tickets/StatusBadge.vue';
@@ -12,7 +11,6 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import { edit } from '@/routes/tickets';
 import type { Ticket } from '@/types/ticket';
 
 const props = defineProps<{
@@ -22,6 +20,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
     'update:open': [value: boolean];
+    edit: [ticket: Ticket];
     delete: [ticket: Ticket];
 }>();
 
@@ -44,6 +43,14 @@ function formatDateTime(value: string): string {
     } catch {
         return value;
     }
+}
+
+function onEdit(): void {
+    if (!props.ticket) {
+        return;
+    }
+
+    emit('edit', props.ticket);
 }
 
 function onDelete(): void {
@@ -166,16 +173,13 @@ function onDelete(): void {
                         Close
                     </Button>
                     <Button
-                        as-child
+                        type="button"
                         variant="outline"
                         class="h-11 w-full touch-manipulation sm:h-9 sm:w-auto"
+                        data-test="ticket-detail-edit"
+                        @click="onEdit"
                     >
-                        <Link
-                            :href="edit(ticket.id)"
-                            data-test="ticket-detail-edit"
-                        >
-                            Edit
-                        </Link>
+                        Edit
                     </Button>
                     <Button
                         type="button"

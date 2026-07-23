@@ -1,12 +1,13 @@
 ﻿<script setup lang="ts">
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 import { ChevronLeft, ChevronRight, Plus, Search, X } from '@lucide/vue';
 import { motion } from 'motion-v';
 import { computed, ref, watch } from 'vue';
 import Heading from '@/components/Heading.vue';
 import PriorityBadge from '@/components/tickets/PriorityBadge.vue';
-import StatusBadge from '@/components/tickets/StatusBadge.vue';
+import TicketDeleteDialog from '@/components/tickets/TicketDeleteDialog.vue';
 import TicketDetailDialog from '@/components/tickets/TicketDetailDialog.vue';
+import TicketFormDialog from '@/components/tickets/TicketFormDialog.vue';
 import { Button } from '@/components/ui/button';
 import {
     Card,
@@ -24,12 +25,13 @@ import {
     TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { dashboard } from '@/routes';
-import { create, destroy, edit } from '@/routes/tickets';
+import { destroy, update } from '@/routes/tickets';
 import type {
     PaginatedTickets,
     Ticket,
     TicketFilters,
     TicketStats,
+    TicketStatus,
 } from '@/types/ticket';
 import {
     TICKET_CATEGORIES,
@@ -65,6 +67,12 @@ const direction = ref(props.filters.direction ?? 'desc');
 
 const selectedTicket = ref<Ticket | null>(null);
 const detailOpen = ref(false);
+const formOpen = ref(false);
+const formTicket = ref<Ticket | null>(null);
+const deleteOpen = ref(false);
+const deleteTicket = ref<Ticket | null>(null);
+const deleteProcessing = ref(false);
+const statusUpdatingId = ref<number | null>(null);
 
 watch(
     () => props.filters,
@@ -275,20 +283,104 @@ function onDetailOpenChange(open: boolean): void {
     }
 }
 
-function confirmDelete(ticket: Ticket): void {
-    if (
-        !window.confirm(
-            `Delete ticket "${ticket.title}"? This cannot be undone.`,
-        )
-    ) {
+function openCreateForm(): void {
+    formTicket.value = null;
+    formOpen.value = true;
+}
+
+function openEditForm(ticket: Ticket): void {
+    detailOpen.value = false;
+    selectedTicket.value = null;
+    formTicket.value = ticket;
+    formOpen.value = true;
+}
+
+function onFormOpenChange(open: boolean): void {
+    formOpen.value = open;
+
+    if (!open) {
+        formTicket.value = null;
+    }
+}
+
+function statusSelectClass(status: string): string {
+    const base =
+        'h-9 max-w-[9.5rem] cursor-pointer rounded-md border px-2 text-xs font-medium outline-none focus-visible:ring-2 focus-visible:ring-ring';
+
+    switch (status) {
+        case 'Open':
+            return `${base} border-amber-200 bg-amber-50 text-amber-800`;
+        case 'In Progress':
+            return `${base} border-sky-200 bg-sky-50 text-sky-800`;
+        case 'Resolved':
+            return `${base} border-green-200 bg-green-50 text-green-800`;
+        case 'Closed':
+            return `${base} border-slate-200 bg-slate-100 text-slate-700`;
+        default:
+            return `${base} border-border bg-card text-foreground`;
+    }
+}
+
+function updateTicketStatus(ticket: Ticket, status: string): void {
+    if (status === ticket.status) {
         return;
     }
 
+    statusUpdatingId.value = ticket.id;
+
+    router.put(
+        update.url(ticket.id),
+        {
+            title: ticket.title,
+            category: ticket.category,
+            priority: ticket.priority,
+            status: status as TicketStatus,
+            assigned_person: ticket.assigned_person,
+            notes: ticket.notes,
+        },
+        {
+            preserveScroll: true,
+            preserveState: true,
+            onFinish: () => {
+                statusUpdatingId.value = null;
+            },
+        },
+    );
+}
+
+function requestDelete(ticket: Ticket): void {
     detailOpen.value = false;
     selectedTicket.value = null;
+    formOpen.value = false;
+    formTicket.value = null;
+    deleteTicket.value = ticket;
+    deleteOpen.value = true;
+}
+
+function onDeleteOpenChange(open: boolean): void {
+    if (deleteProcessing.value && !open) {
+        return;
+    }
+
+    deleteOpen.value = open;
+
+    if (!open) {
+        deleteTicket.value = null;
+    }
+}
+
+function executeDelete(ticket: Ticket): void {
+    deleteProcessing.value = true;
 
     router.delete(destroy.url(ticket.id), {
         preserveScroll: true,
+        onSuccess: () => {
+            deleteOpen.value = false;
+            deleteTicket.value = null;
+        },
+        onFinish: () => {
+            deleteProcessing.value = false;
+        },
     });
 }
 </script>
@@ -315,14 +407,13 @@ function confirmDelete(ticket: Ticket): void {
                 />
             </div>
             <Button
-                as-child
+                type="button"
                 class="h-11 w-full touch-manipulation sm:h-9 sm:w-auto sm:self-start"
                 data-test="new-ticket"
+                @click="openCreateForm"
             >
-                <Link :href="create()">
-                    <Plus class="size-4" />
-                    New ticket
-                </Link>
+                <Plus class="size-4" />
+                New ticket
             </Button>
         </motion.div>
 
@@ -543,8 +634,13 @@ function confirmDelete(ticket: Ticket): void {
                             Create the first ticket to populate the dashboard
                             cards and list.
                         </p>
-                        <Button as-child size="sm">
-                            <Link :href="create()">New ticket</Link>
+                        <Button
+                            type="button"
+                            size="sm"
+                            data-test="new-ticket-empty"
+                            @click="openCreateForm"
+                        >
+                            New ticket
                         </Button>
                     </div>
 
@@ -668,30 +764,72 @@ function confirmDelete(ticket: Ticket): void {
                                         </dl>
 
                                         <div
-                                            class="grid grid-cols-2 gap-2 pt-0.5"
+                                            class="space-y-2 pt-0.5"
                                             @click.stop
                                         >
-                                            <Button
-                                                as-child
-                                                variant="outline"
-                                                class="h-11 touch-manipulation"
-                                            >
-                                                <Link
-                                                    :href="edit(ticket.id)"
+                                            <div class="grid gap-1.5">
+                                                <Label
+                                                    :for="`mobile-status-${ticket.id}`"
+                                                    class="text-[11px] font-medium text-muted-foreground"
+                                                >
+                                                    Status
+                                                </Label>
+                                                <select
+                                                    :id="`mobile-status-${ticket.id}`"
+                                                    class="field-control h-11 text-sm"
+                                                    :class="
+                                                        statusSelectClass(
+                                                            ticket.status,
+                                                        )
+                                                    "
+                                                    :value="ticket.status"
+                                                    :disabled="
+                                                        statusUpdatingId ===
+                                                        ticket.id
+                                                    "
+                                                    data-test="inline-status"
+                                                    @change="
+                                                        updateTicketStatus(
+                                                            ticket,
+                                                            (
+                                                                $event.target as HTMLSelectElement
+                                                            ).value,
+                                                        )
+                                                    "
+                                                >
+                                                    <option
+                                                        v-for="option in TICKET_STATUSES"
+                                                        :key="option"
+                                                        :value="option"
+                                                    >
+                                                        {{ option }}
+                                                    </option>
+                                                </select>
+                                            </div>
+                                            <div class="grid grid-cols-2 gap-2">
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    class="h-11 touch-manipulation"
                                                     data-test="edit-ticket"
+                                                    @click="
+                                                        openEditForm(ticket)
+                                                    "
                                                 >
                                                     Edit
-                                                </Link>
-                                            </Button>
-                                            <Button
-                                                variant="destructive"
-                                                type="button"
-                                                class="h-11 touch-manipulation"
-                                                data-test="delete-ticket"
-                                                @click="confirmDelete(ticket)"
-                                            >
-                                                Delete
-                                            </Button>
+                                                </Button>
+                                                <Button
+                                                    variant="destructive"
+                                                    type="button"
+                                                    class="h-11 touch-manipulation"
+                                                    data-test="delete-ticket"
+                                                    @click="
+                                                        requestDelete(ticket)
+                                                    "
+                                                >
+                                                    Delete
+                                                </Button>
+                                            </div>
                                         </div>
                                     </div>
                                 </li>
@@ -771,10 +909,42 @@ function confirmDelete(ticket: Ticket): void {
                                                     :priority="ticket.priority"
                                                 />
                                             </td>
-                                            <td class="px-4 py-3.5">
-                                                <StatusBadge
-                                                    :status="ticket.status"
-                                                />
+                                            <td
+                                                class="px-4 py-3.5"
+                                                @click.stop
+                                                @keydown.stop
+                                            >
+                                                <select
+                                                    class="field-control"
+                                                    :class="
+                                                        statusSelectClass(
+                                                            ticket.status,
+                                                        )
+                                                    "
+                                                    :value="ticket.status"
+                                                    :disabled="
+                                                        statusUpdatingId ===
+                                                        ticket.id
+                                                    "
+                                                    :aria-label="`Status for ${ticket.title}`"
+                                                    data-test="inline-status"
+                                                    @change="
+                                                        updateTicketStatus(
+                                                            ticket,
+                                                            (
+                                                                $event.target as HTMLSelectElement
+                                                            ).value,
+                                                        )
+                                                    "
+                                                >
+                                                    <option
+                                                        v-for="option in TICKET_STATUSES"
+                                                        :key="option"
+                                                        :value="option"
+                                                    >
+                                                        {{ option }}
+                                                    </option>
+                                                </select>
                                             </td>
                                             <td
                                                 class="px-4 py-3.5 text-foreground"
@@ -799,19 +969,16 @@ function confirmDelete(ticket: Ticket): void {
                                                     class="flex items-center justify-end gap-2"
                                                 >
                                                     <Button
-                                                        as-child
+                                                        type="button"
                                                         variant="outline"
                                                         size="sm"
                                                         class="h-9 min-w-16"
+                                                        data-test="edit-ticket"
+                                                        @click="
+                                                            openEditForm(ticket)
+                                                        "
                                                     >
-                                                        <Link
-                                                            :href="
-                                                                edit(ticket.id)
-                                                            "
-                                                            data-test="edit-ticket"
-                                                        >
-                                                            Edit
-                                                        </Link>
+                                                        Edit
                                                     </Button>
                                                     <Button
                                                         variant="destructive"
@@ -820,7 +987,7 @@ function confirmDelete(ticket: Ticket): void {
                                                         class="h-9 min-w-16"
                                                         data-test="delete-ticket"
                                                         @click="
-                                                            confirmDelete(
+                                                            requestDelete(
                                                                 ticket,
                                                             )
                                                         "
@@ -909,7 +1076,22 @@ function confirmDelete(ticket: Ticket): void {
             :ticket="selectedTicket"
             :open="detailOpen"
             @update:open="onDetailOpenChange"
-            @delete="confirmDelete"
+            @edit="openEditForm"
+            @delete="requestDelete"
+        />
+
+        <TicketFormDialog
+            :open="formOpen"
+            :ticket="formTicket"
+            @update:open="onFormOpenChange"
+        />
+
+        <TicketDeleteDialog
+            :open="deleteOpen"
+            :ticket="deleteTicket"
+            :processing="deleteProcessing"
+            @update:open="onDeleteOpenChange"
+            @confirm="executeDelete"
         />
     </div>
 </template>
